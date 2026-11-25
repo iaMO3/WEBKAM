@@ -5,7 +5,7 @@
 <key>CFBundleName</key><string>WEBKAM</string><key>CFBundleDisplayName</key><string>WEBKAM</string>
 <key>CFBundleIdentifier</key><string>app.pocketcam.companion</string><key>CFBundleExecutable</key><string>PocketCam</string>
 <key>CFBundleInfoDictionaryVersion</key><string>6.0</string><key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.0.2</string><key>CFBundleVersion</key><string>31</string>
+<key>CFBundleShortVersionString</key><string>1.0.3</string><key>CFBundleVersion</key><string>32</string>
 <key>MinimumOSVersion</key><string>18.0</string><key>LSRequiresIPhoneOS</key><true/>
 <key>CFBundleSupportedPlatforms</key><array><string>iPhoneOS</string></array>
 <key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>

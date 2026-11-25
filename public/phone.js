@@ -44,6 +44,8 @@ function request(path, options) { return fetch('/api/' + path, options); }
 
 const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+document.documentElement.classList.toggle('inline-camera', ios);
+let visibilityTimer;
 const androidPip = /\bPocketCamAndroid\/PiP\b/.test(navigator.userAgent);
 const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 if (location.protocol === 'https:' && ios && !standalone && /Version\/.+Safari\//.test(navigator.userAgent)) {
@@ -266,10 +268,20 @@ function finishPipRequest() {
 }
 
 function pauseIfHidden() {
-  if (document.hidden && (media || busy) && !pendingPip && !isFloating()) {
+  clearTimeout(visibilityTimer);
+  if (!document.hidden) {
+    if (media && video.paused) video.play().catch(() => {});
+    return;
+  }
+  // A system camera permission prompt can temporarily hide the page.
+  // Wait for a real background transition, and only stop an acquired camera.
+  if (!media || pendingPip || isFloating()) return;
+  const current = generation;
+  visibilityTimer = setTimeout(() => {
+    if (current !== generation || !document.hidden || pendingPip || isFloating()) return;
     stopCamera();
     message('Camera paused. Tap Start camera to reconnect.');
-  }
+  }, ios ? 1200 : 0);
 }
 
 function floatingFailed() {
@@ -320,12 +332,14 @@ function endStream(id) {
 }
 
 function stopCamera() {
+  clearTimeout(visibilityTimer);
   const closeNative = nativePip || (androidPip && !!pendingPip);
   nativePip = false;
   document.body.classList.remove('floating-preview');
   finishPipRequest();
   if (closeNative) window.location.href = 'pocketcam://float-stopped';
   generation += 1;
+  busy = false;
   media?.getTracks().forEach((track) => track.stop());
   media = undefined;
   cameraSettings = Promise.resolve();
@@ -345,6 +359,7 @@ function stopCamera() {
   wakeLock = undefined;
   video.srcObject = null;
   video.hidden = true;
+  if (ios) video.removeAttribute('style');
   canvas.hidden = true;
   modeLabel.hidden = true;
   floatNote.hidden = true;
@@ -369,6 +384,9 @@ async function startCamera() {
     track.addEventListener('mute', () => {
       if (current === generation) message('Your phone paused the camera. Return to WEBKAM to continue.', 'pending');
     });
+    track.addEventListener('unmute', () => {
+      if (current === generation && !document.hidden) video.play().catch(() => {});
+    });
     track.addEventListener('ended', () => {
       if (current !== generation) return;
       stopCamera();
@@ -376,7 +394,10 @@ async function startCamera() {
     });
     video.srcObject = capture;
     video.hidden = false;
+    if (ios) byId('camera-idle').hidden = true;
+    if (document.hidden) pauseIfHidden();
     await video.play();
+    if (current !== generation) return;
     listCameras();
     const response = await request('start', { method: 'POST' });
     if (!response.ok) {
@@ -400,17 +421,22 @@ async function startCamera() {
         ? 'This camera is unavailable. Choose another camera.'
         : 'Could not start the camera. Check WEBKAM on your PC and try again.');
   } finally {
-    busy = false;
-    updateButtons();
+    if (current === generation) {
+      busy = false;
+      updateButtons();
+    }
   }
 }
 
-function connectVideo(current, id) {
+function connectVideo(current, id, failures = 0) {
   if (current !== generation) return;
   const origin = location.origin.replace(/^http/, 'ws');
   const connection = new WebSocket(origin + '/api/video?stream=' + encodeURIComponent(id));
   socket = connection;
   let entered = false;
+  const handshakeTimer = setTimeout(() => {
+    if (!entered && current === generation && socket === connection) connection.close();
+  }, 5000);
   message('Connecting to your PC…', 'pending');
   connection.addEventListener('message', (event) => {
     if (current !== generation || connection !== socket) return;
@@ -420,19 +446,25 @@ function connectVideo(current, id) {
       setMode(command);
       if (!entered) {
         entered = true;
+        clearTimeout(handshakeTimer);
         reportLight();
         sendFrames(current, connection);
       }
     } catch {}
   });
   connection.addEventListener('close', (event) => {
+    clearTimeout(handshakeTimer);
     if (current !== generation || connection !== socket) return;
-    if (event.code === 4001 || !entered) {
+    if (event.code === 4001) {
       stopCamera();
       syncPairing();
+    } else if (!entered && failures >= 2) {
+      stopCamera();
+      message('Couldn’t connect the video stream to your PC. Keep WEBKAM open on the PC, then tap Start camera to retry.');
     } else {
       message('Reconnecting to your PC…', 'pending');
-      setTimeout(() => connectVideo(current, id), 500);
+      const next = entered ? 0 : failures + 1;
+      setTimeout(() => connectVideo(current, id, next), 500 * (1 + next));
     }
   });
 }
@@ -473,6 +505,13 @@ function previewFrame(source, geometry) {
     canvas.hidden = false;
     modeLabel.hidden = false;
   }
+  if (ios) {
+    const transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+    const w = `${width / outputWidth * 100}%`, h = `${height / outputHeight * 100}%`;
+    if (video.style.width !== w) video.style.width = w;
+    if (video.style.height !== h) video.style.height = h;
+    if (video.style.transform !== transform) video.style.transform = transform;
+  }
   context.save();
   context.translate(outputWidth / 2, outputHeight / 2);
   context.rotate(rotation * Math.PI / 180);
@@ -489,6 +528,7 @@ function sendFrames(current, connection) {
   let lastSent = 0;
   let workers = [];
   let reader;
+  let fallbackTimer;
   let lastPreview = -Infinity;
   const active = () => current === generation && connection === socket && connection.readyState === WebSocket.OPEN;
   function releaseWorkers() {
@@ -496,6 +536,7 @@ function sendFrames(current, connection) {
     workers = [];
   }
   connection.addEventListener('close', () => {
+    clearInterval(fallbackTimer);
     releaseWorkers();
     reader?.cancel().catch(() => {});
   }, { once: true });
@@ -533,6 +574,8 @@ function sendFrames(current, connection) {
     const w = source?.displayWidth || video.videoWidth;
     const h = source?.displayHeight || video.videoHeight;
     if (!w || !h) return;
+    // Some WebKit worker encoders accept the frame but never return a JPEG.
+    if (workers.some(slot => slot.job && performance.now() - slot.job.started > 1200)) releaseWorkers();
     const slot = workers.find(slot => !slot.job);
     if (workers.length ? !slot : inFlight >= (mode.fps === 60 ? 2 : 1)) return;
     mediaTime = stamp;
@@ -548,7 +591,7 @@ function sendFrames(current, connection) {
           lastPreview = clock;
         }
         snapshot = source ? source.clone() : new VideoFrame(video);
-        slot.job = { seq, mode: frameMode };
+        slot.job = { seq, mode: frameMode, started: performance.now() };
         slot.worker.postMessage({ snapshot, geometry, quality: JPEG_QUALITY,
           retryQuality: LARGE_FRAME_QUALITY, maxBytes: MAX_JPEG_BYTES }, [snapshot]);
         return;
@@ -575,12 +618,14 @@ function sendFrames(current, connection) {
     : callback => document.hidden && isFloating()
       ? setTimeout(() => callback(performance.now()), 1000 / mode.fps)
       : requestAnimationFrame(callback);
+  let lastCallback = performance.now();
   function frame(now, metadata) {
     if (!active()) return;
     schedule(frame);
     if (video.readyState >= 2) {
       const stamp = metadata?.mediaTime ?? video.currentTime;
-      consume(stamp, metadata ? stamp * 1000 : now);
+      lastCallback = performance.now();
+      consume(stamp, ios ? lastCallback : metadata ? stamp * 1000 : now);
     }
   }
 
@@ -599,8 +644,16 @@ function sendFrames(current, connection) {
     finally { reader?.releaseLock(); reader = undefined; }
     if (active()) { mediaTime = -1; nextFrame = 0; schedule(frame); }
   }
-  if (typeof MediaStreamTrackProcessor === 'function') readTrack();
-  else schedule(frame);
+  if (!ios && typeof MediaStreamTrackProcessor === 'function') readTrack();
+  else {
+    schedule(frame);
+    if (ios) fallbackTimer = setInterval(() => {
+      const now = performance.now();
+      if (active() && now - lastCallback > 250 && video.readyState >= 2 && !video.paused) {
+        consume(video.currentTime, now);
+      }
+    }, 1000 / 60);
+  }
 }
 
 toggle.addEventListener('click', () => {
