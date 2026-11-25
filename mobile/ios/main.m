@@ -11,7 +11,7 @@
 @implementation ConnectionController
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"PocketCam";
+    self.title = @"WEBKAM";
     self.view.backgroundColor = UIColor.systemBackgroundColor;
     self.web = [[WKWebView alloc] initWithFrame:CGRectZero configuration:[WKWebViewConfiguration new]];
     self.web.navigationDelegate = self;

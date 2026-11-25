@@ -1,10 +1,20 @@
-[![PocketCam · Free phone webcam for Windows, up to 1080p at 60 FPS](docs/media/pocketcam-banner.png)](https://iamo3.github.io/PocketCam/)
+[![WEBKAM · Free phone webcam for Windows, up to 1080p at 60 FPS](docs/media/pocketcam-banner.png)](https://iamo3.github.io/PocketCam/)
 
-# PocketCam
+# WEBKAM
 
-Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. PocketCam is free on all three platforms and supports **up to 1080p at 60 FPS**. The Windows receiver runs as a native Rust app. In Discord or your recording software, select **PocketCam (Windows Virtual Camera)**.
+Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. WEBKAM is free on all three platforms and supports **up to 1080p at 60 FPS**. The Windows receiver runs as a native Rust app. In Discord or your recording software, select **WEBKAM (Windows Virtual Camera)**.
 
-**[Get PocketCam](https://github.com/iaMO3/PocketCam/releases/tag/v2.4.2)** · **[Interactive app tour](https://iamo3.github.io/PocketCam/#preview)** · **[Quick start](#install-and-pair)** · **[Build from source](#build-from-source)**
+<p>
+  <a href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3"><img src="docs/media/action-download.svg" alt="Downloads"></a>
+  <a href="https://iamo3.github.io/PocketCam/#preview"><img src="docs/media/action-tour.svg" alt="App tour"></a>
+  <a href="#install-and-pair"><img src="docs/media/action-pair.svg" alt="Quick start"></a>
+  <a href="#build-from-source"><img src="docs/media/action-source.svg" alt="Build from source"></a>
+</p>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/connection-route.png">
+  <img src="docs/media/connection-route.gif" width="900" alt="Video travels from your phone to the Windows receiver, then into your calling app.">
+</picture>
 
 ## Inside the app
 
@@ -21,16 +31,16 @@ These screens show an example session. Select a screenshot for the full image, o
 
 ## Install and pair
 
-1. **Open the Windows receiver.** Run the Windows x64 installer. Select the USB components you need during setup and choose your connection in PocketCam.
+1. **Open the Windows receiver.** Run the Windows x64 installer. Select the USB components you need during setup and choose your connection in WEBKAM.
 2. **Connect the phone.** Scan the QR code with your phone’s camera for browser setup, or type the PC address into the companion. Follow the certificate setup when prompted, enter the eight-digit code displayed on your PC, and tap **Start camera**.
-3. **Choose PocketCam in your call.** In Discord, open **User Settings → Voice & Video → Camera**. Select **PocketCam (Windows Virtual Camera)** and choose a microphone separately. Keep the receiver open during the call.
+3. **Choose WEBKAM in your call.** In Discord, open **User Settings → Voice & Video → Camera**. Select **WEBKAM (Windows Virtual Camera)** and choose a microphone separately. Keep the receiver open during the call.
 
 <details>
 <summary>See the Windows pairing screen and iPhone certificate steps</summary>
 
 [![Windows pairing screen in light mode with example connection details](docs/media/pairing.webp)](docs/media/pairing.webp)
 
-Use the QR code displayed on your own PC. On iPhone, install the **PocketCam** profile from the setup page and enable full trust for **PocketCam Camera** under **Settings → General → About → Certificate Trust Settings**. The profile adds the web app to your Home Screen. iOS shows **Not Signed** for the locally generated profile.
+Use the QR code displayed on your own PC. On iPhone, install the **WEBKAM** profile from the setup page and enable full trust for **the certificate shown in the Windows receiver** under **Settings → General → About → Certificate Trust Settings**. The profile adds the web app to your Home Screen. iOS shows **Not Signed** for the locally generated profile.
 
 If another phone session is paired, click **Disconnect** in the Windows app to get a new code. Restart Discord if it was open during installation and its camera list needs refreshing.
 
@@ -38,15 +48,15 @@ If another phone session is paired, click **Disconnect** in the Windows app to g
 
 ## Downloads
 
-All PocketCam downloads are free. For browser capture, scan the desktop QR code in Safari or Chrome and keep the phone page open while streaming.
+All WEBKAM downloads are free. For browser capture, scan the desktop QR code in Safari or Chrome and keep the phone page open while streaming.
 
 | Platform | Download | Requirements |
 | --- | --- | --- |
-| Windows | [PocketCam 2.4.2 Setup](https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4.2-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
-| Android | [PocketCam 2.4 APK](https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4-Android.apk) | Android 8 or later. Signed APK. |
-| iPhone | [PocketCam PiP 2.6 IPA](https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-iPhone-Hybrid-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
+| Windows | [WEBKAM 2.4.3 Setup](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
+| Android | [WEBKAM 2.4.1 APK](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk) | Android 8 or later. Signed APK. |
+| iPhone | [WEBKAM PiP 2.6.1 IPA](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
 
-[Release notes and SHA-256 checksums](https://github.com/iaMO3/PocketCam/releases/tag/v2.4.2)
+[Release notes and SHA-256 checksums](https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3)
 
 ## Video quality and orientation
 
@@ -65,32 +75,32 @@ The Windows preview reports incoming FPS. The virtual camera paces output to the
 <details>
 <summary>Home Screen installation, iPhone signing, and floating preview</summary>
 
-### Install PocketCam on the iPhone Home Screen
+### Install WEBKAM on the iPhone Home Screen
 
-1. Scan the Windows QR code in Safari and tap **Download PocketCam profile**. Match the certificate name shown on the PC.
-2. Install the profile in **Settings → Profile Downloaded**. The profile adds the PocketCam Home Screen icon and your PC’s certificate.
-3. Enable full trust for **PocketCam Camera** in **Settings → General → About → Certificate Trust Settings**.
-4. Open the PocketCam icon and enter the pairing code from Windows. If an earlier session is still paired, click **Disconnect** on Windows first.
+1. Scan the Windows QR code in Safari and tap **Download WEBKAM profile**. Match the certificate name shown on the PC.
+2. Install the profile in **Settings → Profile Downloaded**. The profile adds the WEBKAM Home Screen icon and your PC’s certificate.
+3. Enable full trust for **the certificate shown in the Windows receiver** in **Settings → General → About → Certificate Trust Settings**.
+4. Open the WEBKAM icon and enter the pairing code from Windows. If an earlier session is still paired, click **Disconnect** on Windows first.
 
 You can also open the secure camera page in Safari and use **Share → Add to Home Screen**. Enable **Open as Web App** if the option appears.
 
-The Home Screen app opens at the saved PC address. If that address changes, scan the current QR code and add PocketCam again.
+The Home Screen app opens at the saved PC address. If that address changes, scan the current QR code and add WEBKAM again.
 
 ### Keep the camera visible while switching apps
 
 - **Android**. Update the APK and the Windows app. Start the camera, then tap **Floating preview** to open Android’s Picture-in-picture window. You can switch apps with the preview visible. Closing the preview or locking the device pauses the camera.
-- **iPhone**. Use the hybrid **PocketCam PiP** companion on iOS 18 or later. Enter the PC address and pair in the companion, then tap **Start camera → Floating preview**. The companion uses the familiar PocketCam camera interface with native AVFoundation capture and AVKit Picture-in-Picture on devices that report camera multitasking support. If iOS interrupts capture, return to the app. Camera multitasking in the Safari and profile-installed versions depends on WebKit.
+- **iPhone**. Use the hybrid **WEBKAM PiP** companion on iOS 18 or later. Enter the PC address and pair in the companion, then tap **Start camera → Floating preview**. The companion uses the familiar WEBKAM camera interface with native AVFoundation capture and AVKit Picture-in-Picture on devices that report camera multitasking support. If iOS interrupts capture, return to the app. Camera multitasking in the Safari and profile-installed versions depends on WebKit.
 
-- **Android 8 or later**. Open **PocketCam-2.4-Android.apk** on the phone and approve installation for the app that opened the file. The APK is signed with a local release key.
-- **iPhone, iOS 18 or later**. **PocketCam-iPhone-Hybrid-unsigned.ipa** contains the arm64 companion and requires personal signing. In AltStore Classic, open **My Apps**, tap **+**, and choose the IPA. On Windows, keep PocketCam open and click **Disconnect** if the browser version is still paired, then enter the new pairing code in **PocketCam PiP**.
-- Open PocketCam on the phone and enter the PC address shown under the Windows QR code. On a first Wi-Fi or USB tether connection, tap **First-time certificate setup**, complete the certificate instructions in the system browser, then return to the app and tap **Open camera**. Enter the PC pairing code and allow camera access. On Android ADB, click **Connect Android USB** on Windows and choose **Use Android USB (ADB)** in the phone app.
+- **Android 8 or later**. Open **WEBKAM-2.4.1-Android.apk** on the phone and approve installation for the app that opened the file. The APK is signed with a local release key.
+- **iPhone, iOS 18 or later**. **WEBKAM-2.6.1-iPhone-unsigned.ipa** contains the arm64 companion and requires personal signing. In AltStore Classic, open **My Apps**, tap **+**, and choose the IPA. On Windows, keep WEBKAM open and click **Disconnect** if the browser version is still paired, then enter the new pairing code in **WEBKAM**.
+- Open WEBKAM on the phone and enter the PC address shown under the Windows QR code. On a first Wi-Fi or USB tether connection, tap **First-time certificate setup**, complete the certificate instructions in the system browser, then return to the app and tap **Open camera**. Enter the PC pairing code and allow camera access. On Android ADB, click **Connect Android USB** on Windows and choose **Use Android USB (ADB)** in the phone app.
 - Use **Connection** in the phone companion to change PCs. Scanning the desktop QR code with the phone's system camera still opens the browser workflow.
 
 </details>
 
 ## USB connections
 
-| Phone | Connection in PocketCam | Phone setting |
+| Phone | Connection in WEBKAM | Phone setting |
 | --- | --- | --- |
 | iPhone | iPhone USB | Trust the PC and enable Personal Hotspot over a data cable. |
 | Android | Android USB tethering | Enable USB tethering on the phone. |
@@ -99,13 +109,13 @@ The Home Screen app opens at the saved PC address. If that address changes, scan
 <details>
 <summary>USB drivers, network adapters, and troubleshooting</summary>
 
-- **iPhone USB**. Select **iPhone USB** in Setup to install Apple Mobile Device Support if needed. Plug the iPhone in with a data cable, tap **Trust** if prompted, and turn on **Settings → Personal Hotspot → Allow Others to Join**. Select **iPhone USB** in PocketCam and open **Network adapter** to choose the Apple tether adapter if needed. Personal Hotspot availability depends on your carrier.
-- **Android USB tethering**. Plug the phone in, enable **USB tethering** under **Hotspot & tethering**, and select **Android USB tethering** in PocketCam. Choose the new USB network adapter if needed and scan the code in Chrome.
-- **Android USB (ADB)**. Select **Android USB** in Setup to install Platform-Tools and the Google USB driver. Other Android models may require their manufacturer’s USB driver. Enable **USB debugging** on the phone, connect the USB cable, approve the phone’s USB debugging prompt, and click **Connect Android USB** in PocketCam. On the phone, choose **Use Android USB (ADB)** or open **http://127.0.0.1:47746** in Chrome. ADB uses the USB cable directly and skips the certificate step.
+- **iPhone USB**. Select **iPhone USB** in Setup to install Apple Mobile Device Support if needed. Plug the iPhone in with a data cable, tap **Trust** if prompted, and turn on **Settings → Personal Hotspot → Allow Others to Join**. Select **iPhone USB** in WEBKAM and open **Network adapter** to choose the Apple tether adapter if needed. Personal Hotspot availability depends on your carrier.
+- **Android USB tethering**. Plug the phone in, enable **USB tethering** under **Hotspot & tethering**, and select **Android USB tethering** in WEBKAM. Choose the new USB network adapter if needed and scan the code in Chrome.
+- **Android USB (ADB)**. Select **Android USB** in Setup to install Platform-Tools and the Google USB driver. Other Android models may require their manufacturer’s USB driver. Enable **USB debugging** on the phone, connect the USB cable, approve the phone’s USB debugging prompt, and click **Connect Android USB** in WEBKAM. On the phone, choose **Use Android USB (ADB)** or open **http://127.0.0.1:47746** in Chrome. ADB uses the USB cable directly and skips the certificate step.
 
-If a USB tether link won’t open, check that Windows lists a tether adapter with an IPv4 address. Choose it in PocketCam and make sure its network profile is **Private**. On a trusted home network, the equivalent Wi-Fi or Ethernet adapter also needs the **Private** profile. The installer opens the PocketCam setup and camera ports to the local subnet on private networks.
+If a USB tether link won’t open, check that Windows lists a tether adapter with an IPv4 address. Choose it in WEBKAM and make sure its network profile is **Private**. On a trusted home network, the equivalent Wi-Fi or Ethernet adapter also needs the **Private** profile. The installer opens the WEBKAM setup and camera ports to the local subnet on private networks.
 
-You can remove old certificates from the phone after changing connections. To uninstall the PC app, close its window and uninstall PocketCam from **Settings → Apps → Installed apps**.
+You can remove old certificates from the phone after changing connections. To uninstall the PC app, close its window and uninstall WEBKAM from **Settings → Apps → Installed apps**.
 
 </details>
 

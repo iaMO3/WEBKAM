@@ -79,7 +79,7 @@ impl Source {
                 &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
                 &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID,
             )?;
-            attributes.SetString(&MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, w!("PocketCam"))?;
+            attributes.SetString(&MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, w!("WEBKAM"))?;
             let object = ComObject::new(Self {
                 events: MFCreateEventQueue()?,
                 attributes,

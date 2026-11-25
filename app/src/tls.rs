@@ -11,7 +11,7 @@ use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
 const CERTIFICATE_VERSION: u8 = 2;
-const CERTIFICATE_NAME: &str = "PocketCam Camera";
+const CERTIFICATE_NAME: &str = "WEBKAM Camera";
 
 #[derive(Deserialize, Serialize)]
 pub struct Certificates {
@@ -94,7 +94,7 @@ impl Certificates {
             self.leaf_key.as_bytes().to_vec(),
         )
         .await
-        .context("Can't load the PocketCam TLS certificate")
+        .context("Can't load the WEBKAM TLS certificate")
     }
 
     pub fn profile(&self, setup_origin: &str) -> Result<String> {
@@ -116,24 +116,24 @@ impl Certificates {
 <key>PayloadVersion</key><integer>1</integer>
 <key>PayloadIdentifier</key><string>local.pocketcam.{profile_id}</string>
 <key>PayloadUUID</key><string>{profile_id}</string>
-<key>PayloadDisplayName</key><string>PocketCam</string>
-<key>PayloadOrganization</key><string>PocketCam</string>
-<key>PayloadDescription</key><string>Adds PocketCam to your Home Screen and installs the certificate for this PC.</string>
+<key>PayloadDisplayName</key><string>WEBKAM</string>
+<key>PayloadOrganization</key><string>WEBKAM</string>
+<key>PayloadDescription</key><string>Adds WEBKAM to your Home Screen and installs the certificate for this PC.</string>
 <key>PayloadContent</key><array><dict>
 <key>PayloadType</key><string>com.apple.security.root</string>
 <key>PayloadVersion</key><integer>1</integer>
 <key>PayloadIdentifier</key><string>local.pocketcam.{profile_id}.certificate</string>
 <key>PayloadUUID</key><string>{payload_id}</string>
 <key>PayloadDisplayName</key><string>{label}</string>
-<key>PayloadCertificateFileName</key><string>PocketCam.cer</string>
+<key>PayloadCertificateFileName</key><string>WEBKAM.cer</string>
 <key>PayloadContent</key><data>{cert}</data>
 </dict><dict>
 <key>PayloadType</key><string>com.apple.webClip.managed</string>
 <key>PayloadVersion</key><integer>1</integer>
 <key>PayloadIdentifier</key><string>local.pocketcam.{profile_id}.webclip</string>
 <key>PayloadUUID</key><string>{web_clip_id}</string>
-<key>PayloadDisplayName</key><string>PocketCam Home Screen App</string>
-<key>Label</key><string>PocketCam</string>
+<key>PayloadDisplayName</key><string>WEBKAM Home Screen App</string>
+<key>Label</key><string>WEBKAM</string>
 <key>URL</key><string>{setup_origin}/iphone</string>
 <key>FullScreen</key><true/>
 <key>IgnoreManifestScope</key><true/>

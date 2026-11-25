@@ -2,17 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 <key>CFBundleDevelopmentRegion</key><string>en</string>
-<key>CFBundleName</key><string>PocketCam</string><key>CFBundleDisplayName</key><string>PocketCam PiP</string>
+<key>CFBundleName</key><string>WEBKAM</string><key>CFBundleDisplayName</key><string>WEBKAM</string>
 <key>CFBundleIdentifier</key><string>app.pocketcam.companion</string><key>CFBundleExecutable</key><string>PocketCam</string>
 <key>CFBundleInfoDictionaryVersion</key><string>6.0</string><key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>2.6.0</string><key>CFBundleVersion</key><string>26</string>
+<key>CFBundleShortVersionString</key><string>2.6.1</string><key>CFBundleVersion</key><string>27</string>
 <key>MinimumOSVersion</key><string>18.0</string><key>LSRequiresIPhoneOS</key><true/>
 <key>CFBundleSupportedPlatforms</key><array><string>iPhoneOS</string></array>
 <key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>
 <key>UILaunchScreen</key><dict/>
 <key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
 <key>NSCameraUsageDescription</key><string>Use your camera as a webcam for your paired Windows PC.</string>
-<key>NSLocalNetworkUsageDescription</key><string>Connect to PocketCam on your PC to send your camera feed.</string>
+<key>NSLocalNetworkUsageDescription</key><string>Connect to WEBKAM on your PC to send your camera feed.</string>
 <key>UIBackgroundModes</key><array><string>audio</string><string>voip</string></array>
 <key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict>
 <key>CFBundleIconFiles</key><array><string>Icon60</string></array>

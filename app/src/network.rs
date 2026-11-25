@@ -51,7 +51,7 @@ impl Connection {
         match self {
             Self::Network => "Connect your phone and PC to the same trusted network.",
             Self::IphoneUsb => {
-                "Plug in your iPhone, tap Trust and turn on Personal Hotspot. PocketCam Setup can install Apple USB support."
+                "Plug in your iPhone, tap Trust and turn on Personal Hotspot. WEBKAM Setup can install Apple USB support."
             }
             Self::AndroidTether => {
                 "Plug in your Android phone and enable USB tethering under Hotspot & tethering. Choose the tethered adapter below."
@@ -273,7 +273,7 @@ fn setup_router(origin: &str, camera_origin: &str, certificate: &Certificates) -
                         (header::CONTENT_TYPE, "application/x-apple-aspen-config"),
                         (
                             header::CONTENT_DISPOSITION,
-                            "attachment; filename=PocketCam.mobileconfig",
+                            "attachment; filename=WEBKAM.mobileconfig",
                         ),
                     ],
                     profile,
@@ -289,7 +289,7 @@ fn setup_router(origin: &str, camera_origin: &str, certificate: &Certificates) -
                         (header::CONTENT_TYPE, "application/x-x509-ca-cert"),
                         (
                             header::CONTENT_DISPOSITION,
-                            "attachment; filename=PocketCam.cer",
+                            "attachment; filename=WEBKAM.cer",
                         ),
                     ],
                     der,
@@ -360,7 +360,7 @@ async fn adb(args: &[&str]) -> Result<String> {
     )
     .await
     .context("ADB timed out. Check the USB debugging prompt on the phone.")?
-    .context("ADB could not start. Run PocketCam Setup and select Android USB support.")?;
+    .context("ADB could not start. Run WEBKAM Setup and select Android USB support.")?;
     if !output.status.success() {
         let detail = String::from_utf8_lossy(&output.stderr);
         bail!("ADB: {}", detail.trim());

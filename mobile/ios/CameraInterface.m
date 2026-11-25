@@ -70,7 +70,7 @@
     UILabel *status = [UILabel new];
     status.translatesAutoresizingMaskIntoConstraints = NO;
     status.numberOfLines = 0;
-    status.text = @"PocketCam’s camera screen couldn’t load. Reinstall the PocketCam PiP app.";
+    status.text = @"WEBKAM’s camera screen couldn’t load. Reinstall WEBKAM.";
     [self addSubview:status];
     [NSLayoutConstraint activateConstraints:@[
         [status.centerYAnchor constraintEqualToAnchor:self.centerYAnchor],

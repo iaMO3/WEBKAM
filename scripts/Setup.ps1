@@ -2,7 +2,8 @@ param([switch]$Uninstall, [switch]$Packaged)
 
 $ErrorActionPreference = 'Stop'
 $installDir = Join-Path $env:ProgramFiles 'PocketCam'
-$shortcutPath = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'PocketCam.lnk'
+$shortcutPath = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'WEBKAM.lnk'
+$legacyShortcut = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'PocketCam.lnk'
 $appPath = Join-Path $installDir 'pocketcam.exe'
 $clsid = '{659F03EB-0BAE-4D0A-972E-8B6A6F323807}'
 $classKey = "HKLM:\SOFTWARE\Classes\CLSID\$clsid"
@@ -24,7 +25,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 
 try {
     if (Get-Process -Name 'pocketcam' -ErrorAction SilentlyContinue) {
-        throw 'Close the PocketCam window before running setup.'
+        throw 'Close the WEBKAM window before running setup.'
     }
     if ($Uninstall) {
         Remove-NetFirewallRule -Name $firewallName -ErrorAction SilentlyContinue
@@ -33,6 +34,7 @@ try {
             if (Test-Path -LiteralPath $serverKey) { Remove-Item -LiteralPath $serverKey }
             if (Test-Path -LiteralPath $key) { Remove-Item -LiteralPath $key }
         }
+        if (Test-Path -LiteralPath $legacyShortcut) { Remove-Item -LiteralPath $legacyShortcut }
         if (Test-Path -LiteralPath $shortcutPath) { Remove-Item -LiteralPath $shortcutPath }
         $notices = Join-Path $installDir 'THIRD-PARTY-NOTICES.txt'
         if (Test-Path -LiteralPath $notices) { Remove-Item -LiteralPath $notices }
@@ -45,13 +47,13 @@ try {
                 Remove-Item -LiteralPath $installDir
             }
         }
-        Write-Host 'PocketCam was unregistered. Restart Windows if a camera DLL was still in use.'
+        Write-Host 'WEBKAM was unregistered. Restart Windows if a camera DLL was still in use.'
         exit 0
     }
 
     $build = [int](Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild
     if ($build -lt 22000 -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64') {
-        throw 'This PocketCam build requires 64-bit Windows 11 on an Intel or AMD PC.'
+        throw 'This WEBKAM build requires 64-bit Windows 11 on an Intel or AMD PC.'
     }
     $sourceExe = Join-Path $PSScriptRoot 'pocketcam.exe'
     $sourceDll = Join-Path $PSScriptRoot 'pocketcam_camera.dll'
@@ -67,17 +69,18 @@ try {
     $serverKey = "$classKey\InprocServer32"
     New-Item -Path $classKey -Force | Out-Null
     New-Item -Path $serverKey -Force | Out-Null
-    Set-Item -LiteralPath $classKey -Value 'PocketCam Camera Source'
+    Set-Item -LiteralPath $classKey -Value 'WEBKAM Camera Source'
     Set-Item -LiteralPath $serverKey -Value $dllPath
     New-ItemProperty -LiteralPath $serverKey -Name 'ThreadingModel' -Value 'Both' -PropertyType String -Force | Out-Null
 
     $currentFirewall = Get-NetFirewallRule -Name $firewallName -ErrorAction SilentlyContinue
     if ($currentFirewall) {
+        Set-NetFirewallRule -Name $firewallName -NewDisplayName 'WEBKAM iPhone connection' | Out-Null
         $currentFirewall | Get-NetFirewallPortFilter | Set-NetFirewallPortFilter -Protocol TCP -LocalPort 47744,47745 | Out-Null
     } else {
         $firewall = @{
             Name = $firewallName
-            DisplayName = 'PocketCam iPhone connection'
+            DisplayName = 'WEBKAM iPhone connection'
             Direction = 'Inbound'
             Action = 'Allow'
             Program = $appPath
@@ -95,7 +98,8 @@ try {
     $shortcut.WorkingDirectory = $installDir
     $shortcut.Description = 'Use your iPhone or Android camera as a Windows webcam'
     $shortcut.Save()
-    Write-Host 'PocketCam is installed.'
+    if (Test-Path -LiteralPath $legacyShortcut) { Remove-Item -LiteralPath $legacyShortcut }
+    Write-Host 'WEBKAM is installed.'
 } catch {
     Write-Host $_.Exception.Message -ForegroundColor Red
     if (!$Packaged) { Read-Host 'Press Enter to close setup' }

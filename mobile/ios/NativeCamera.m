@@ -69,7 +69,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"PocketCam";
+    self.title = @"WEBKAM";
     self.view.backgroundColor = UIColor.systemBackgroundColor;
     self.preview = [CameraPreview new];
     self.preview.backgroundColor = [UIColor colorWithRed:.06 green:.08 blue:.14 alpha:1];
@@ -186,7 +186,7 @@
         self.paired = code == 200;
         self.retry = error != nil || (code != 200 && code != 401);
         self.statusText = error ? [self connectionMessage:error] : self.paired
-            ? @"Paired with your Windows PC." : @"Enter the pairing code shown in PocketCam on Windows.";
+            ? @"Paired with your Windows PC." : @"Enter the pairing code shown in WEBKAM on Windows.";
     }];
 }
 
@@ -196,9 +196,9 @@
         case NSURLErrorServerCertificateHasUnknownRoot:
         case NSURLErrorServerCertificateHasBadDate:
         case NSURLErrorSecureConnectionFailed:
-            return @"Enable full trust for PocketCam Camera in iPhone Certificate Trust Settings, then tap Retry connection.";
+            return @"Enable full trust for the certificate shown on your PC in iPhone Certificate Trust Settings, then tap Retry connection.";
         default:
-            return @"Couldn’t reach your PC. Keep PocketCam open on Windows and allow Local Network access on iPhone.";
+            return @"Couldn’t reach your PC. Keep WEBKAM open on Windows and allow Local Network access on iPhone.";
     }
 }
 
@@ -224,7 +224,7 @@
             self.retry = YES;
             self.statusText = [self connectionMessage:error];
         } else if (status == 409) {
-            self.statusText = @"Select Disconnect in PocketCam on Windows to get a new pairing code.";
+            self.statusText = @"Select Disconnect in WEBKAM on Windows to get a new pairing code.";
         } else if (status == 429) {
             self.statusText = @"Wait 30 seconds before trying again.";
         } else {
@@ -247,7 +247,7 @@
             NativeCamera *self = weakSelf;
             if (!self || self.epoch != epoch) return;
             if (allowed) [self startStream:epoch];
-            else [self stopWithMessage:@"Allow camera access for PocketCam in iPhone Settings."];
+            else [self stopWithMessage:@"Allow camera access for WEBKAM in iPhone Settings."];
         });
     }];
 }
@@ -268,7 +268,7 @@
                 self.paired = NO;
                 self.retry = YES;
             }
-            [self stopWithMessage:error ? [self connectionMessage:error] : @"Pair with PocketCam on Windows again."];
+            [self stopWithMessage:error ? [self connectionMessage:error] : @"Pair with WEBKAM on Windows again."];
             return;
         }
         self.stream = stream;
@@ -582,7 +582,7 @@
     if (controller != self.pip) return;
     self.pipStarting = NO;
     [self releasePiPAudio];
-    self.statusText = @"iOS couldn’t start floating preview. Keep PocketCam open to continue streaming.";
+    self.statusText = @"iOS couldn’t start floating preview. Keep WEBKAM open to continue streaming.";
     [self backgrounded];
 }
 
@@ -614,7 +614,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!self.stream) return;
         self.videoLive = NO;
-        self.statusText = @"iPhone paused the camera. Return to PocketCam to continue.";
+        self.statusText = @"iPhone paused the camera. Return to WEBKAM to continue.";
     });
 }
 

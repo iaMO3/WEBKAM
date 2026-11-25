@@ -26,13 +26,13 @@ public class FloatingCameraService extends Service {
         try {
             NotificationManager notifications = getSystemService(NotificationManager.class);
             notifications.createNotificationChannel(new NotificationChannel(
-                CHANNEL, "PocketCam camera", NotificationManager.IMPORTANCE_LOW));
+                CHANNEL, "WEBKAM camera", NotificationManager.IMPORTANCE_LOW));
             PendingIntent open = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
             Notification notification = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
-                .setContentTitle("PocketCam camera is active")
-                .setContentText("Tap to return to PocketCam")
+                .setContentTitle("WEBKAM camera is active")
+                .setContentText("Tap to return to WEBKAM")
                 .setContentIntent(open)
                 .setOngoing(true)
                 .build();

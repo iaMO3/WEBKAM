@@ -1,5 +1,5 @@
 Unicode true
-Name "PocketCam 2.4.2"
+Name "WEBKAM 2.4.3"
 OutFile "${OUTPUT}"
 InstallDir "$PROGRAMFILES64\PocketCam"
 RequestExecutionLevel admin
@@ -17,12 +17,12 @@ SetOverwrite on
 !define MUI_ICON "${ROOT}\assets\pocketcam-setup.ico"
 !define MUI_UNICON "${ROOT}\assets\pocketcam-app.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "${ROOT}\assets\pocketcam-wizard.bmp"
-!define MUI_WELCOMEPAGE_TITLE "Welcome to PocketCam Setup"
-!define MUI_WELCOMEPAGE_TEXT "Install PocketCam and its Windows virtual camera so you can use your phone in Discord and other video apps.$\r$\n$\r$\nClose PocketCam before continuing."
+!define MUI_WELCOMEPAGE_TITLE "Welcome to WEBKAM Setup"
+!define MUI_WELCOMEPAGE_TEXT "Install WEBKAM and its Windows virtual camera so you can use your phone in Discord and other video apps.$\r$\n$\r$\nClose WEBKAM before continuing."
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_FUNCTION LaunchPocketCam
-!define MUI_FINISHPAGE_RUN_TEXT "Open PocketCam"
-!define MUI_FINISHPAGE_TEXT "PocketCam is installed. Connect your phone, then choose a connection in PocketCam."
+!define MUI_FINISHPAGE_RUN_FUNCTION LaunchWEBKAM
+!define MUI_FINISHPAGE_RUN_TEXT "Open WEBKAM"
+!define MUI_FINISHPAGE_TEXT "WEBKAM is installed. Connect your phone, then choose a connection in WEBKAM."
 !insertmacro MUI_PAGE_WELCOME
 Page custom UsbPage UsbPageLeave
 Page custom ReviewPage
@@ -45,12 +45,12 @@ Function .onInit
     StrCpy $UsbWarning ""
     ${IfNot} ${RunningX64}
     ${OrIfNot} ${AtLeastWin10}
-        MessageBox MB_OK|MB_ICONSTOP "PocketCam requires Windows 11 on an Intel or AMD PC."
+        MessageBox MB_OK|MB_ICONSTOP "WEBKAM requires Windows 11 on an Intel or AMD PC."
         Abort
     ${EndIf}
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuild"
     IntCmp $0 22000 supported 0 supported
-    MessageBox MB_OK|MB_ICONSTOP "PocketCam requires Windows 11 on an Intel or AMD PC."
+    MessageBox MB_OK|MB_ICONSTOP "WEBKAM requires Windows 11 on an Intel or AMD PC."
     Abort
 supported:
 FunctionEnd
@@ -97,7 +97,7 @@ Function ReviewPage
     ${If} $0 == error
         Abort
     ${EndIf}
-    StrCpy $1 "PocketCam and the Windows virtual camera"
+    StrCpy $1 "WEBKAM and the Windows virtual camera"
     ${If} $Android == 1
         StrCpy $1 "$1$\r$\nAndroid USB support"
     ${EndIf}
@@ -113,7 +113,7 @@ Function ReviewPage
     nsDialogs::Show
 FunctionEnd
 
-Section "PocketCam"
+Section "WEBKAM"
     IfSilent 0 +2
     StrCpy $Android 0
     IfSilent 0 +2
@@ -126,16 +126,16 @@ Section "PocketCam"
     File "Setup.ps1"
     File "UsbSupport.ps1"
 
-    DetailPrint "Installing PocketCam and registering the Windows virtual camera..."
+    DetailPrint "Installing WEBKAM and registering the Windows virtual camera..."
     nsExec::ExecToLog '"$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\Setup.ps1" -Packaged'
     Pop $0
     ${If} $0 != 0
         SetErrorLevel 1
-        Abort "PocketCam setup failed. Close PocketCam if it is open, then retry."
+        Abort "WEBKAM setup failed. Close WEBKAM if it is open, then retry."
     ${EndIf}
     WriteUninstaller "$INSTDIR\Uninstall.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayName" "PocketCam"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "2.4.2"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayName" "WEBKAM"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "2.4.3"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayIcon" "$INSTDIR\pocketcam.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "UninstallString" '"$INSTDIR\Uninstall.exe"'
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "NoModify" 1
@@ -153,9 +153,9 @@ Section "PocketCam"
         nsExec::ExecToLog '"$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\UsbSupport.ps1" -InstallDir "$INSTDIR" $1'
         Pop $0
         ${If} $0 == 3010
-            StrCpy $UsbWarning "PocketCam is installed. Windows needs a restart to finish setting up USB support."
+            StrCpy $UsbWarning "WEBKAM is installed. Windows needs a restart to finish setting up USB support."
         ${ElseIf} $0 != 0
-            StrCpy $UsbWarning "PocketCam is installed. A USB component failed. See Show details, then run Setup again to retry."
+            StrCpy $UsbWarning "WEBKAM is installed. A USB component failed. See Show details, then run Setup again to retry."
         ${EndIf}
     ${EndIf}
     ${If} $UsbWarning != ""
@@ -163,7 +163,7 @@ Section "PocketCam"
     ${EndIf}
 SectionEnd
 
-Function LaunchPocketCam
+Function LaunchWEBKAM
     ExecShell "open" "$WINDIR\explorer.exe" '"$INSTDIR\pocketcam.exe"'
 FunctionEnd
 
@@ -175,7 +175,7 @@ Section "Uninstall"
     nsExec::ExecToLog '"$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\Setup.ps1" -Packaged -Uninstall'
     Pop $0
     ${If} $0 != 0
-        Abort "Close PocketCam, then run the uninstaller again."
+        Abort "Close WEBKAM, then run the uninstaller again."
     ${EndIf}
     Delete "$INSTDIR\platform-tools\adb.exe"
     Delete "$INSTDIR\platform-tools\AdbWinApi.dll"

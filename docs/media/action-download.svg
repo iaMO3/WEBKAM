@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 42" width="140" height="42">
+  <title>Downloads</title>
+  <rect x=".5" y=".5" width="139" height="41" rx="12" fill="#182021" stroke="#52645c"/>
+  <rect x="6" y="6" width="30" height="30" rx="8" fill="#cbf7a9"/>
+  <g transform="translate(11 11) scale(.83)" fill="none" stroke="#182224" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></g>
+  <text x="44" y="26" fill="#edf5ec" font-family="Segoe UI,Arial,sans-serif" font-weight="600" font-size="14">Downloads</text>
+</svg>

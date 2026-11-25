@@ -47,7 +47,7 @@ if (window.isSecureContext && 'serviceWorker' in navigator) {
 function showPairing() {
   panel.hidden = true;
   form.hidden = false;
-  message('Enter the eight-digit code shown in PocketCam on your PC.');
+  message('Enter the eight-digit code shown in WEBKAM on your PC.');
 }
 
 function showCamera() {
@@ -108,7 +108,7 @@ async function syncPairing() {
       showPairing();
     }
   } catch {
-    message('Could not reach PocketCam. Check that it’s open on your PC.', 'offline');
+    message('Could not reach WEBKAM. Check that it’s open on your PC.', 'offline');
   }
 }
 
@@ -133,7 +133,7 @@ form.addEventListener('submit', async (event) => {
     else if (response.status === 429) message('Too many attempts. Wait 30 seconds and try again.');
     else message('That code didn’t match. Check the code on your PC.');
   } catch {
-    message('Could not reach PocketCam. Check your connection and try again.');
+    message('Could not reach WEBKAM. Check your connection and try again.');
   } finally {
     button.disabled = false;
   }
@@ -151,7 +151,7 @@ function updateButtons() {
   cameraHint.hidden = !floatNote.hidden;
   cameraHint.textContent = available
     ? 'Floating preview depends on support for live camera video on this device.'
-    : 'Keep PocketCam open while streaming.';
+    : 'Keep WEBKAM open while streaming.';
 }
 
 function webKitPipSupported() {
@@ -185,8 +185,8 @@ function pauseIfHidden() {
 function floatingFailed() {
   if (ios) browserPipRejected = true;
   floatNote.textContent = ios
-    ? 'This iPhone paused or rejected the floating live camera. Keep PocketCam open while streaming.'
-    : 'Floating preview is unavailable. Keep PocketCam open while streaming.';
+    ? 'This iPhone paused or rejected the floating live camera. Keep WEBKAM open while streaming.'
+    : 'Floating preview is unavailable. Keep WEBKAM open while streaming.';
   floatNote.hidden = false;
   finishPipRequest();
   pauseIfHidden();
@@ -272,7 +272,7 @@ async function startCamera() {
     media = capture;
     const track = capture.getVideoTracks()[0];
     track.addEventListener('mute', () => {
-      if (current === generation) message('Your phone paused the camera. Return to PocketCam to continue.', 'pending');
+      if (current === generation) message('Your phone paused the camera. Return to WEBKAM to continue.', 'pending');
     });
     track.addEventListener('ended', () => {
       if (current !== generation) return;
@@ -303,7 +303,7 @@ async function startCamera() {
       ? 'Allow camera access in this browser’s site settings, then try again.'
       : error.name === 'OverconstrainedError' || error.name === 'NotFoundError'
         ? 'This camera is unavailable. Choose another camera.'
-        : 'Could not start the camera. Check PocketCam on your PC and try again.');
+        : 'Could not start the camera. Check WEBKAM on your PC and try again.');
   } finally {
     busy = false;
     updateButtons();
@@ -454,7 +454,7 @@ window.addEventListener('pocketcam-pip-exited', () => {
   setTimeout(pauseIfHidden, 300);
 });
 window.addEventListener('pocketcam-pip-failed', () => {
-  floatNote.textContent = 'Floating preview is unavailable. Check Picture-in-picture access for PocketCam in Android Settings.';
+  floatNote.textContent = 'Floating preview is unavailable. Check Picture-in-picture access for WEBKAM in Android Settings.';
   floatNote.hidden = false;
   finishPipRequest();
   pauseIfHidden();

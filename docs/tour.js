@@ -41,3 +41,17 @@ function selectLinkedPanel() {
 }
 selectLinkedPanel();
 window.addEventListener("hashchange", selectLinkedPanel);
+
+// Sections are fully visible before enhancement, including when a visitor follows a deep link.
+if ("IntersectionObserver" in window) {
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("in-view");
+      observer.unobserve(entry.target);
+    }
+  });
+  document
+    .querySelectorAll(".section-head, .setup-photo, .setup-copy, .download-row")
+    .forEach((element) => observer.observe(element));
+}

@@ -73,7 +73,7 @@ pub fn show(
 ) -> Result<()> {
     let icon = Arc::new(
         eframe::icon_data::from_png_bytes(crate::web::ICON_192)
-            .context("Read the PocketCam icon")?,
+            .context("Read the WEBKAM icon")?,
     );
     let options = eframe::NativeOptions {
         viewport: ViewportBuilder::default()
@@ -84,7 +84,7 @@ pub fn show(
         ..Default::default()
     };
     eframe::run_native(
-        "PocketCam",
+        "WEBKAM",
         options,
         Box::new(move |creation| {
             let ctx = &creation.egui_ctx;
@@ -129,7 +129,7 @@ pub fn show(
                 last_frame: None,
                 preview: None,
                 brand: ctx.load_texture(
-                    "PocketCam icon",
+                    "WEBKAM icon",
                     ColorImage::from_rgba_unmultiplied(
                         [icon.width as usize, icon.height as usize],
                         &icon.rgba,
@@ -614,12 +614,12 @@ impl Desktop {
                         .color(palette(ui.visuals().dark_mode).green),
                 )
                 .on_hover_text(
-                    "Select PocketCam (Windows Virtual Camera) in Discord or your video app.",
+                    "Select WEBKAM (Windows Virtual Camera) in Discord or your video app.",
                 );
             }
             Some(Err(error)) => {
                 let hint = if error.contains("80040154") {
-                    "Run Install PocketCam to enable the virtual camera."
+                    "Run Install WEBKAM to enable the virtual camera."
                 } else {
                     "Windows couldn’t start the virtual camera. Check Camera privacy settings."
                 };
@@ -710,7 +710,7 @@ impl eframe::App for Desktop {
                 ui.horizontal(|ui| {
                     let (mark, _) = ui.allocate_exact_size(Vec2::splat(35.0), egui::Sense::hover());
                     egui::Image::new(&self.brand).paint_at(ui, mark);
-                    ui.label(RichText::new("PocketCam").font(display_font(23.0)));
+                    ui.label(RichText::new("WEBKAM").font(display_font(23.0)));
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         self.appearance_switch(ui);
                         if roomy {
@@ -900,7 +900,7 @@ mod tests {
         let choices =
             [Appearance::System, Appearance::Light, Appearance::Dark].map(|m| (m, m.label()));
         let directory =
-            std::env::temp_dir().join(format!("PocketCam-theme-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("WEBKAM-theme-{}", uuid::Uuid::new_v4()));
         for target in [Appearance::Light, Appearance::Dark, Appearance::System] {
             let mut draw = |events| {
                 ctx.run_ui(

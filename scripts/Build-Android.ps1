@@ -38,7 +38,7 @@ try {
     }
     if (!(Test-Path $key) -or !(Test-Path $secret)) { throw 'Restore the existing Android signing key and password to sign updates.' }
     $env:POCKETCAM_APK_PASSWORD = [IO.File]::ReadAllText($secret)
-    $out = Join-Path $root 'dist/PocketCam-Android.apk'
+    $out = Join-Path $root 'dist/WEBKAM-Android.apk'
     & "$Jdk/bin/java.exe" -jar "$BuildTools/lib/apksigner.jar" sign --ks $key --ks-pass env:POCKETCAM_APK_PASSWORD --ks-key-alias pocketcam --v4-signing-enabled false --out $out "$stage/aligned.apk"
     & "$Jdk/bin/java.exe" -jar "$BuildTools/lib/apksigner.jar" verify --verbose $out
 } finally {

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">
+  <title>WEBKAM webcam</title>
+  <defs>
+    <linearGradient id="tile" x2=".82" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#405750"/><stop offset=".48" stop-color="#1b2c2c"/><stop offset="1" stop-color="#0c151a"/>
+    </linearGradient>
+    <linearGradient id="enamel" x1="0" y1="0" x2=".65" y2="1">
+      <stop stop-color="#f3ffdc"/><stop offset=".32" stop-color="#c9f8a4"/><stop offset=".74" stop-color="#9dd987"/><stop offset="1" stop-color="#68a786"/>
+    </linearGradient>
+    <linearGradient id="stand" x2=".4" y2="1">
+      <stop stop-color="#8fa5a0"/><stop offset=".42" stop-color="#d6e5d6"/><stop offset="1" stop-color="#94aaa2"/>
+    </linearGradient>
+    <radialGradient id="glass" cx=".31" cy=".24" r=".85">
+      <stop stop-color="#94b6ce"/><stop offset=".27" stop-color="#435b73"/><stop offset=".55" stop-color="#14292e"/><stop offset=".79" stop-color="#232e40"/><stop offset="1" stop-color="#385253"/>
+    </radialGradient>
+  </defs>
+  <g id="tile-background">
+    <rect x="2" y="2" width="252" height="252" rx="57" fill="url(#tile)" stroke="#6a8277" stroke-width="2"/>
+  </g>
+  <g id="webcam">
+    <path d="M109 153h38v24l20 11c4 2 6 5 6 9v3H83v-3c0-4 2-7 6-9l20-11z" fill="#101e20" transform="translate(0 4)"/>
+    <path d="M113 150h30v29l23 10c4 2 6 4 6 8v2H84v-2c0-4 2-6 6-8l23-10z" fill="url(#stand)"/>
+    <path d="M113 156h30v8l-30 7z" fill="#617b77"/>
+    <rect x="32" y="68" width="192" height="97" rx="42" fill="#101c1e"/>
+    <rect x="32" y="61" width="192" height="97" rx="42" fill="url(#enamel)" stroke="#d4f5c3" stroke-width="2.5"/>
+    <path d="M48 87q8-18 29-19h92" fill="none" stroke="#f4ffe8" stroke-opacity=".65" stroke-linecap="round" stroke-width="3"/>
+    <circle cx="126" cy="110" r="38" fill="#639782"/>
+    <circle cx="126" cy="108" r="36" fill="#12252b" stroke="#efffce" stroke-width="2"/>
+    <circle cx="126" cy="108" r="27.5" fill="url(#glass)" stroke="#5b7474" stroke-width="2.5"/>
+    <circle cx="126" cy="108" r="14" fill="#0d212c"/>
+    <circle cx="118" cy="98" r="6.3" fill="#d8f6ed"/>
+    <circle cx="135" cy="118" r="3.6" fill="#9f9acd"/>
+    <circle cx="186" cy="98" r="5.2" fill="#173a32"/>
+    <circle cx="186" cy="98" r="2.2" fill="#f3ffd1"/>
+    <g fill="#518674"><circle cx="59" cy="107" r="2.1"/><circle cx="66" cy="107" r="2.1"/><circle cx="73" cy="107" r="2.1"/></g>
+  </g>
+</svg>

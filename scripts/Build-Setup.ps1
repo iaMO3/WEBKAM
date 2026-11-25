@@ -1,6 +1,6 @@
 param(
     [string]$MakeNsis = 'makensis.exe',
-    [string]$Output = 'dist/PocketCam-Setup.exe'
+    [string]$Output = 'dist/WEBKAM-Setup.exe'
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -8,7 +8,7 @@ Push-Location $root
 $staged = $null
 try {
     cargo build --workspace --release --locked
-    if ($LASTEXITCODE) { throw 'PocketCam build failed.' }
+    if ($LASTEXITCODE) { throw 'WEBKAM build failed.' }
     $destination = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
     $folder = [IO.Path]::GetDirectoryName($destination)
     [void][IO.Directory]::CreateDirectory($folder)

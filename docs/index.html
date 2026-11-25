@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#080a15" />
+    <meta name="theme-color" content="#0b1012" />
     <meta
       name="description"
-      content="PocketCam is free. Turn your iPhone or Android into a Windows 11 webcam over Wi-Fi or USB, with video up to 1080p at 60 FPS."
+      content="WEBKAM is free. Turn your iPhone or Android into a Windows 11 webcam over Wi-Fi or USB, with video up to 1080p at 60 FPS."
     />
-    <meta property="og:title" content="PocketCam · Your phone is your webcam" />
+    <meta property="og:title" content="WEBKAM · Your phone is your webcam" />
     <meta
       property="og:description"
       content="A free phone webcam for Windows. Connect over Wi-Fi or USB and capture up to 1080p at 60 FPS."
@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="media/pocketcam.png" />
     <link rel="stylesheet" href="style.css" />
     <script defer src="tour.js"></script>
-    <title>PocketCam · Your phone is your webcam</title>
+    <title>WEBKAM · Your phone is your webcam</title>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -60,9 +60,7 @@
 
     <header>
       <div class="wrap mast">
-        <a class="brand" href="./"
-          ><img src="media/pocketcam.png" width="34" height="34" alt="" />PocketCam</a
-        >
+        <a class="brand" href="./"><img src="media/pocketcam.png" width="34" height="34" alt="" />WEBKAM</a>
         <nav aria-label="Main navigation">
           <a href="#preview">App tour</a><a href="#setup">Setup</a
           ><a class="github" href="https://github.com/iaMO3/PocketCam"
@@ -73,46 +71,72 @@
     </header>
     <main id="main">
       <section class="wrap hero" aria-labelledby="hero-heading">
-        <div class="hero-head">
-          <div>
-            <a class="release" href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.2"
-              ><i aria-hidden="true"></i> PocketCam 2.4.2 <span> / </span> Free to use</a
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <a class="release" href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3"
+              ><i aria-hidden="true"></i> v2.4.3 <span>·</span> Free to use</a
             >
-            <h1 id="hero-heading">Your phone as<br />a <em>webcam.</em></h1>
-          </div>
-          <div class="hero-actions">
-            <p>
-              Bring your iPhone or Android camera into Discord, Zoom, and other Windows apps over Wi-Fi or
-              USB.
-            </p>
+            <h1 id="hero-heading">Your phone.<br /><em>Your webcam.</em></h1>
+            <p>Use your iPhone or Android as a webcam in Discord, Zoom, and other Windows apps.</p>
             <div class="buttons">
               <a
                 class="cta"
-                href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4.2-Setup.exe"
+                href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe"
                 ><svg class="icon" aria-hidden="true"><use href="#download" /></svg> Download for Windows</a
-              ><a class="text-link" href="#preview"
-                >Explore the app <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
+              >
+              <a class="text-link" href="#preview"
+                >Tour the app <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
               ></a>
             </div>
           </div>
-        </div>
-        <div class="product-stage">
-          <div class="product-pair">
-            <div class="desktop-shell">
-              <img
-                src="media/desktop.webp"
-                width="1060"
-                height="765"
-                alt="PocketCam on Windows showing the sample camera feed, connection status and video settings."
-              />
-            </div>
-            <div class="phone-shell">
-              <img
-                src="media/phone.webp"
-                width="780"
-                height="1460"
-                alt="PocketCam on iPhone showing its camera lens picker, stream controls and floating preview button."
-              />
+          <div class="viewfinder">
+            <fieldset class="scene-switch">
+              <legend class="sr-only">Preview view</legend>
+              <label
+                ><input type="radio" name="scene" value="desk" checked /><svg class="icon" aria-hidden="true">
+                  <use href="#camera" />
+                </svg>
+                Desk setup</label
+              >
+              <label
+                ><input type="radio" name="scene" value="app" /><svg class="icon" aria-hidden="true">
+                  <use href="#monitor" />
+                </svg>
+                App screens</label
+              >
+            </fieldset>
+            <div class="view-window">
+              <div class="desk-scene">
+                <img
+                  src="media/pocketcam-webcam-setup.webp"
+                  width="1448"
+                  height="1086"
+                  fetchpriority="high"
+                  alt="A caller uses the phone mounted above his monitor as his webcam."
+                />
+                <div class="focus-target" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="app-scene">
+                <div class="product-pair">
+                  <div class="desktop-shell">
+                    <img
+                      src="media/desktop.webp"
+                      width="1060"
+                      height="765"
+                      alt="WEBKAM on Windows showing the sample camera feed, connection status and video settings."
+                    />
+                  </div>
+                  <div class="phone-shell">
+                    <img
+                      src="media/phone.webp"
+                      width="780"
+                      height="1460"
+                      alt="WEBKAM on iPhone showing its camera lens picker, stream controls and floating preview button."
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="glass" aria-hidden="true"></div>
             </div>
           </div>
         </div>
@@ -128,15 +152,20 @@
       </section>
       <section class="wrap section" id="preview">
         <div class="section-head">
-          <h2>Inside PocketCam</h2>
+          <h2>Inside <em>WEBKAM.</em></h2>
           <p>Explore the app screens with an example camera feed and pairing details.</p>
         </div>
         <div class="tour">
           <nav class="tour-tabs" aria-label="App screens">
-            <a href="#panel-desktop" id="tab-desktop">Windows dashboard</a
-            ><a href="#panel-phone" id="tab-phone">Phone controls</a
-            ><a href="#panel-pairing" id="tab-pairing">Pairing</a
-            ><a href="#panel-framing" id="tab-framing">Framing</a>
+            <a href="#panel-desktop" id="tab-desktop"
+              ><svg class="icon" aria-hidden="true"><use href="#monitor" /></svg>Windows dashboard</a
+            ><a href="#panel-phone" id="tab-phone"
+              ><svg class="icon" aria-hidden="true"><use href="#phone" /></svg>Phone controls</a
+            ><a href="#panel-pairing" id="tab-pairing"
+              ><svg class="icon" aria-hidden="true"><use href="#wifi" /></svg>Pairing</a
+            ><a href="#panel-framing" id="tab-framing"
+              ><svg class="icon" aria-hidden="true"><use href="#frame" /></svg>Framing</a
+            >
           </nav>
           <article class="tour-panel" id="panel-desktop">
             <div class="panel-intro">
@@ -154,7 +183,7 @@
                 src="media/desktop.webp"
                 width="1060"
                 height="765"
-                alt="PocketCam on Windows showing the sample camera feed, connection status and video settings."
+                alt="WEBKAM on Windows showing the sample camera feed, connection status and video settings."
             /></a>
           </article>
           <article class="tour-panel" id="panel-phone">
@@ -170,7 +199,7 @@
                 src="media/phone.webp"
                 width="780"
                 height="1460"
-                alt="PocketCam on iPhone showing its camera lens picker, stream controls and floating preview button."
+                alt="WEBKAM on iPhone showing its camera lens picker, stream controls and floating preview button."
             /></a>
           </article>
           <article class="tour-panel" id="panel-pairing">
@@ -186,7 +215,7 @@
                 src="media/pairing.webp"
                 width="1060"
                 height="765"
-                alt="PocketCam pairing screen in light mode with an example QR code and pairing code."
+                alt="WEBKAM pairing screen in light mode with an example QR code and pairing code."
             /></a>
           </article>
           <article class="tour-panel" id="panel-framing">
@@ -239,19 +268,24 @@
       <section class="setup-band" id="setup">
         <div class="wrap section setup-grid">
           <figure class="setup-photo">
-            <img
-              src="media/pocketcam-webcam-setup.webp"
-              width="1448"
-              height="1086"
-              alt="A phone mounted above a monitor serves as a webcam during a video call."
-              loading="lazy"
-            />
+            <a href="media/pairing.webp" aria-label="Open the full example pairing screen"
+              ><img
+                src="media/pairing.webp"
+                width="1060"
+                height="765"
+                alt="The Windows receiver displays a QR code and eight-digit pairing code. Use the ones on your own PC."
+                loading="lazy"
+            /></a>
+            <figcaption>
+              <svg class="icon" aria-hidden="true"><use href="#wifi" /></svg> Pairing screen on Windows
+              <span>Example</span>
+            </figcaption>
           </figure>
           <div class="setup-copy">
-            <h2>Set up your webcam</h2>
+            <h2>Set up your <em>webcam.</em></h2>
             <ol>
               <li>
-                <h3>Open PocketCam on Windows</h3>
+                <h3>Open WEBKAM on Windows</h3>
                 <p>Install the receiver and choose Wi-Fi or your phone’s USB connection.</p>
               </li>
               <li>
@@ -262,10 +296,10 @@
                 </p>
               </li>
               <li>
-                <h3>Choose PocketCam in your call</h3>
+                <h3>Choose WEBKAM in your call</h3>
                 <p>
                   In Discord, open <strong>Voice &amp; Video</strong> and select
-                  <strong>PocketCam (Windows Virtual Camera)</strong>. Choose your microphone separately.
+                  <strong>WEBKAM (Windows Virtual Camera)</strong>. Choose your microphone separately.
                 </p>
               </li>
             </ol>
@@ -279,7 +313,7 @@
         <div class="section-head">
           <h2>Downloads</h2>
           <p>
-            PocketCam is free to download and use on all three platforms. Install the Windows receiver first.
+            WEBKAM is free to download and use on all three platforms. Install the Windows receiver first.
           </p>
         </div>
         <div class="downloads">
@@ -294,7 +328,7 @@
             </div>
             <a
               class="file"
-              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4.2-Setup.exe"
+              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe"
               >Windows installer <svg class="icon" aria-hidden="true"><use href="#download" /></svg
             ></a>
           </article>
@@ -309,7 +343,7 @@
             </div>
             <a
               class="file"
-              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4-Android.apk"
+              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk"
               >Android APK <svg class="icon" aria-hidden="true"><use href="#download" /></svg
             ></a>
           </article>
@@ -327,13 +361,13 @@
             </div>
             <a
               class="file"
-              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-iPhone-Hybrid-unsigned.ipa"
+              href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa"
               >Unsigned iPhone IPA <svg class="icon" aria-hidden="true"><use href="#download" /></svg
             ></a>
           </article>
         </div>
         <p class="notes">
-          <a href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.2"
+          <a href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3"
             >Release notes and SHA-256 checksums <svg class="icon" aria-hidden="true"><use href="#out" /></svg
           ></a>
         </p>
@@ -341,9 +375,7 @@
     </main>
     <footer>
       <div class="wrap mast">
-        <a class="brand" href="./"
-          ><img src="media/pocketcam.png" width="34" height="34" alt="" />PocketCam</a
-        >
+        <a class="brand" href="./"><img src="media/pocketcam.png" width="34" height="34" alt="" />WEBKAM</a>
         <nav aria-label="Project links">
           <a href="https://github.com/iaMO3/PocketCam/issues">Get help</a
           ><a href="https://github.com/iaMO3/PocketCam"

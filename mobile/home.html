@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="color-scheme" content="light dark"><title>PocketCam</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="color-scheme" content="light dark"><title>WEBKAM</title>
 <style>
 :root{color-scheme:light dark;font:16px -apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",sans-serif;color:#1d1d21;background:#f6f6f9;--surface:white;--muted:#565967;--line:#dcdde4;--field:#f4f4f7;--blue:#005fc6}
 @media(prefers-color-scheme:dark){:root{color:#f4f4f7;background:#1b1c20;--surface:#25262c;--muted:#bbbcc7;--line:#43444e;--field:#303138;--blue:#0866c9}}
@@ -14,7 +14,7 @@
   button, .button { transition: background-color .16s, transform .13s ease-out; }
   button:active, .button:active { transform: scale(.98); }
 }
-</style></head><body><main><h1>Connect to your PC</h1><p>Open PocketCam on Windows and enter the address shown under the QR code.</p>
+</style></head><body><main><h1>Connect to your PC</h1><p>Open WEBKAM on Windows and enter the address shown under the QR code.</p>
 <form id="connect"><label for="address">PC address</label><input id="address" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="192.168.1.100">
 <small id="error" role="alert"></small><button class="primary" type="submit">Open camera</button><button id="setup" type="button">First-time certificate setup</button><button id="usb" type="button" hidden>Use Android USB (ADB)</button></form></main>
 <script>
@@ -25,7 +25,7 @@ function openPC(action) {
   const match = /^(\d{1,3}(?:\.\d{1,3}){3})(?::(?:47744|47745|47746))?$/.exec(value);
   const ip = match && match[1].split('.').map(Number);
   const privateIP = ip && ip.every(n=>n<=255) && (ip[0]===10 || (ip[0]===192 && ip[1]===168) || (ip[0]===172 && ip[1]>=16 && ip[1]<=31));
-  if (!privateIP) { error.textContent='Enter the local IPv4 address shown in PocketCam.'; input.focus(); return; }
+  if (!privateIP) { error.textContent='Enter the local IPv4 address shown in WEBKAM.'; input.focus(); return; }
   location.href='pocketcam://'+action+'/'+ip.join('.');
 }
 document.getElementById('connect').onsubmit=e=>{e.preventDefault();openPC('camera')};

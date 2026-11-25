@@ -37,7 +37,7 @@ impl Camera {
                         MFVirtualCameraType_SoftwareCameraSource,
                         MFVirtualCameraLifetime_Session,
                         MFVirtualCameraAccess_CurrentUser,
-                        w!("PocketCam"),
+                        w!("WEBKAM"),
                         &HSTRING::from(format!("{{{:?}}}", shared::SOURCE_CLSID)),
                         None,
                     )?;
@@ -114,7 +114,7 @@ fn run() -> Result<()> {
     let (send, receive) = tokio::sync::watch::channel(None);
     let app = {
         let _runtime = runtime.enter();
-        frames::serve(receive).context("Could not start the Windows camera pipe. If PocketCam is open, close its other window.")?;
+        frames::serve(receive).context("Could not start the Windows camera pipe. If WEBKAM is open, close its other window.")?;
         web::App::new(settings, send)
     };
     if env::args().any(|argument| argument == "--diagnostics") {
@@ -147,7 +147,7 @@ fn main() {
             MessageBoxW(
                 None,
                 &HSTRING::from(format!("{error:#}")),
-                w!("PocketCam"),
+                w!("WEBKAM"),
                 MB_ICONERROR,
             );
         }
