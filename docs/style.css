@@ -42,7 +42,7 @@ h1 span { color: var(--accent); }
 .secondary { color: #dfe9f4; background: #121d29; }
 .secondary:hover { background: #1b2937; border-color: #4e687a; }
 .hero-art { width: calc(100% + 54px); margin-left: -20px; }
-.hero-art img { width: 100%; height: auto; border-radius: 26px; mask-image: linear-gradient(to right, transparent, black 12%, black 93%, transparent), linear-gradient(to bottom, transparent, black 10%, black 91%, transparent); mask-composite: intersect; }
+.hero-art img { width: 100%; height: auto; border-radius: 18px; box-shadow: 0 15px 55px #02060bbf, 0 0 0 1px #b8c5d31a; }
 .capabilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--border); background: var(--border); border-radius: 16px; overflow: hidden; }
 .capabilities article { padding: 23px 25px 24px; background: #101821; }
 .capability-icon { width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 11px; border: 1px solid currentColor; border-color: color-mix(in srgb, currentColor 26%, transparent); background: color-mix(in srgb, currentColor 10%, #101823); }
