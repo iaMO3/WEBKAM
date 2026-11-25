@@ -2,7 +2,10 @@ const bar = document.querySelector(".tour-tabs");
 const tabs = [...bar.querySelectorAll("a")];
 const panels = tabs.map((tab) => document.querySelector(tab.hash));
 
+let walkthroughTimer = 0;
+
 function selectTab(selected) {
+  if (walkthroughTimer && selected.hash !== "#panel-phone") stopWalkthrough();
   tabs.forEach((tab, index) => {
     const active = tab === selected;
     tab.setAttribute("aria-selected", String(active));
@@ -134,18 +137,37 @@ desktopDemo.querySelector(".demo-rotate").addEventListener("click", () => {
 });
 
 const phoneDemo = document.querySelector('[data-demo="phone"]');
-const replayImage = document.querySelector("#lighting-clip");
-const replayButton = document.querySelector(".lighting-replay button");
-const replayStill = replayImage.getAttribute("src");
-const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-function setReplay(playing) {
-  replayImage.src = playing ? replayImage.dataset.animation : replayStill;
-  replayButton.textContent = playing ? "Stop animation" : "Play animation";
+const walkthroughButton = document.querySelector("#play-lighting");
+
+function stopWalkthrough() {
+  window.clearTimeout(walkthroughTimer);
+  walkthroughTimer = 0;
+  walkthroughButton.textContent = "Show the switch";
 }
-setReplay(!motionPreference.matches);
-replayButton.hidden = false;
-replayButton.addEventListener("click", () => setReplay(replayImage.getAttribute("src") === replayStill));
-motionPreference.addEventListener("change", () => setReplay(!motionPreference.matches));
+
+function playLightingStep(index) {
+  const steps = [["rear", false], ["rear", true], ["front", false], ["front", true]];
+  [facing, lightOn] = steps[index];
+  renderLighting();
+  if (index === steps.length - 1) {
+    stopWalkthrough();
+  } else {
+    walkthroughButton.textContent = "Stop walkthrough";
+    walkthroughTimer = window.setTimeout(() => playLightingStep(index + 1), 1200);
+  }
+}
+
+walkthroughButton.hidden = false;
+walkthroughButton.addEventListener("click", () => {
+  if (walkthroughTimer) stopWalkthrough();
+  else playLightingStep(0);
+});
+for (const event of ["pointerdown", "keydown", "click", "change"]) {
+  phoneDemo.addEventListener(event, stopWalkthrough, true);
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopWalkthrough();
+});
 
 const phoneStatus = phoneDemo.querySelector(".demo-signal");
 const phoneButton = phoneDemo.querySelector(".demo-stream");
@@ -192,6 +214,7 @@ updatePhoneLens();
 phoneButton.addEventListener("click", () => {
   const running = phoneDemo.dataset.state === "idle";
   phoneDemo.dataset.state = running ? "running" : "idle";
+  walkthroughButton.disabled = !running;
   phoneStatus.textContent = running ? "Preview" : "Stopped";
   phoneDemo.querySelector(".demo-phone-idle").hidden = running;
   phoneButton.textContent = running ? "Stop sample" : "Start sample";

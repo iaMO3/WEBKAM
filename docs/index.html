@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://iamo3.github.io/WEBKAM/media/pocketcam-banner.png" />
     <link rel="icon" href="media/pocketcam.png" />
     <link rel="apple-touch-icon" href="media/pocketcam.png" />
-    <link rel="stylesheet" href="style.css?v=lighting-replay" />
-    <script defer src="tour.js?v=lighting-replay"></script>
+    <link rel="stylesheet" href="style.css?v=lighting-walkthrough" />
+    <script defer src="tour.js?v=lighting-walkthrough"></script>
     <title>WEBKAM · Your phone is your webcam</title>
   </head>
   <body>
@@ -235,8 +235,11 @@
               </a>
             </div>
             <div class="demo-phone-stage">
-              <h4>Try the controls</h4>
-              <div class="demo-handset" data-demo="phone">
+              <div class="walkthrough-heading">
+                <h4>Try the switch</h4>
+                <button class="demo-button" id="play-lighting" type="button" aria-controls="phone-handset" hidden>Show the switch</button>
+              </div>
+              <div class="demo-handset" id="phone-handset" data-demo="phone">
                 <div class="demo-title">
                   <span><img src="media/pocketcam.png" alt="" /> WEBKAM</span>
                   <span class="demo-signal" role="status">Preview</span>
@@ -262,16 +265,7 @@
                 </div>
               </div>
             </div>
-            <figure class="lighting-replay">
-              <figcaption>
-                <h4>Watch the switch</h4>
-                <button class="demo-button" type="button" aria-controls="lighting-clip" hidden>Play animation</button>
-              </figcaption>
-              <img id="lighting-clip" src="media/camera-light-demo-still.png" data-animation="media/camera-light-demo.gif"
-                width="575" height="720" loading="lazy"
-                alt="Rear Flash turns on. Selecting Front switches the light off, then Screen light turns the phone display white." />
-              <noscript><a class="tour-reference" href="media/camera-light-demo.gif">Open the animation</a></noscript>
-            </figure>
+            <noscript><a class="tour-reference" href="media/camera-light-demo.gif">Watch the lighting demo</a></noscript>
           </article>
           <article class="tour-panel" id="panel-pairing">
             <div class="panel-intro">
