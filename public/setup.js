@@ -42,6 +42,7 @@ async function connect() {
   }
   openCamera.disabled = false;
   openCamera.textContent = 'Retry connection';
+  if (fromHomeScreen) document.getElementById('profile-setup').hidden = false;
   if (isAndroid) {
     android.open = true;
     message.textContent = 'Keep WEBKAM open on your computer and install this PC’s certificate as a CA certificate on Android, then retry.';

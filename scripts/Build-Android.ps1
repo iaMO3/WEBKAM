@@ -13,6 +13,9 @@ $classes = New-Item -ItemType Directory -Force "$stage/classes"
 $dex = New-Item -ItemType Directory "$stage/dex"
 $assets = New-Item -ItemType Directory "$stage/assets"
 Copy-Item (Join-Path $root 'mobile/home.html') $assets
+Copy-Item (Join-Path $root 'public/style.css') $assets
+$icons = New-Item -ItemType Directory "$assets/icons"
+Copy-Item "$root/assets/pocketcam-192.png", "$root/assets/studio-landscape.png" $icons
 $env:JAVA_HOME = $Jdk
 $env:Path = "$Jdk/bin;$env:Path"
 try {

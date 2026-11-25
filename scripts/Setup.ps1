@@ -5,6 +5,7 @@ $installDir = Join-Path $env:ProgramFiles 'PocketCam'
 $shortcutPath = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'WEBKAM.lnk'
 $legacyShortcut = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'PocketCam.lnk'
 $appPath = Join-Path $installDir 'pocketcam.exe'
+$iconPath = Join-Path $installDir 'WEBKAM.ico'
 $clsid = '{659F03EB-0BAE-4D0A-972E-8B6A6F323807}'
 $classKey = "HKLM:\SOFTWARE\Classes\CLSID\$clsid"
 $oldClassKey = 'HKLM:\SOFTWARE\Classes\CLSID\{114A8121-77B2-460A-8D75-1C9CF0B0C614}'
@@ -39,6 +40,7 @@ try {
         $notices = Join-Path $installDir 'THIRD-PARTY-NOTICES.txt'
         if (Test-Path -LiteralPath $notices) { Remove-Item -LiteralPath $notices }
         if (Test-Path -LiteralPath $appPath) { Remove-Item -LiteralPath $appPath }
+        if (Test-Path -LiteralPath $iconPath) { Remove-Item -LiteralPath $iconPath }
         if (Test-Path -LiteralPath $installDir) {
             Get-ChildItem -LiteralPath $installDir -File -Filter 'pocketcam_camera-*.dll' | ForEach-Object {
                 Remove-Item -LiteralPath $_.FullName -ErrorAction SilentlyContinue
@@ -65,6 +67,10 @@ try {
     }
     if (Test-Path (Join-Path $PSScriptRoot 'THIRD-PARTY-NOTICES.txt')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'THIRD-PARTY-NOTICES.txt') -Destination $installDir -Force }
     Copy-Item -LiteralPath $sourceExe -Destination $appPath -Force
+    $sourceIcon = Join-Path $PSScriptRoot 'WEBKAM.ico'
+    if (Test-Path -LiteralPath $sourceIcon) {
+        Copy-Item -LiteralPath $sourceIcon -Destination $iconPath -Force
+    }
 
     $serverKey = "$classKey\InprocServer32"
     New-Item -Path $classKey -Force | Out-Null
@@ -94,11 +100,25 @@ try {
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = $appPath
-    $shortcut.IconLocation = "$appPath,0"
+    $shortcut.IconLocation = if (Test-Path -LiteralPath $iconPath) { "$iconPath,0" } else { "$appPath,0" }
     $shortcut.WorkingDirectory = $installDir
     $shortcut.Description = 'Use your iPhone or Android camera as a Windows webcam'
     $shortcut.Save()
     if (Test-Path -LiteralPath $legacyShortcut) { Remove-Item -LiteralPath $legacyShortcut }
+    try {
+        Add-Type -Namespace WEBKAM -Name Shell -MemberDefinition @"
+[System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, ExactSpelling = true)]
+public static extern void SHChangeNotify(int eventId, uint flags, string item, System.IntPtr unused);
+"@
+        # SHCNE_UPDATEITEM, with a Unicode path and asynchronous delivery.
+        foreach ($path in @($appPath, $iconPath, $shortcutPath)) {
+            if (Test-Path -LiteralPath $path) {
+                [WEBKAM.Shell]::SHChangeNotify(0x2000, 0x3005, $path, [IntPtr]::Zero)
+            }
+        }
+    } catch {
+        Write-Warning 'Windows could not refresh the WEBKAM icon.'
+    }
     Write-Host 'WEBKAM is installed.'
 } catch {
     Write-Host $_.Exception.Message -ForegroundColor Red

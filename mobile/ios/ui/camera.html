@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src file:; style-src file:; script-src file:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="theme-color" content="#f2f6f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#12191a" media="(prefers-color-scheme: dark)">
   <title>WEBKAM</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="camera.js"></script>
@@ -11,11 +13,11 @@
 <body class="camera-app">
   <main class="mobile shell phone">
     <header class="topbar">
-      <span class="brand"><span class="brand-mark" aria-hidden="true"></span>WEBKAM</span>
+      <span class="brand"><span class="brand-mark" aria-hidden="true"></span><span>WEBKAM<small>Camera studio</small></span></span>
       <span id="connection-chip" class="connection-chip" data-state="pending">Connecting</span>
     </header>
     <section class="intro camera-intro">
-      <h1>Camera</h1>
+      <h1>Viewfinder</h1>
       <p id="phone-status" role="status">Connecting to your Windows PC…</p>
     </section>
     <form id="pair" class="mobile-panel pair-card" hidden>
@@ -27,7 +29,7 @@
     <section id="camera" class="camera-workspace" aria-label="Camera controls" hidden>
       <div id="phone-stage" class="stage phone-stage" data-orientation="landscape" aria-label="Camera preview">
         <div id="camera-idle" class="stage-content">
-          <img class="standby-icon" src="icons/pocketcam-192.png" width="64" height="64" alt="">
+
           <span id="camera-idle-text">Camera is off</span>
         </div>
       </div>
@@ -38,6 +40,8 @@
           <select id="camera-picker"></select>
         </div>
         <button id="toggle" class="primary" type="button">Start camera</button>
+        <button id="camera-flash" class="secondary" type="button" aria-pressed="false" hidden>Flash</button>
+        <p id="flash-note" class="camera-hint" role="status" hidden></p>
         <button id="float-camera" class="secondary" type="button" hidden>Floating preview</button>
       </div>
     </section>

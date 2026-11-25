@@ -24,8 +24,8 @@
         [self.web.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor],
         [self.web.trailingAnchor constraintEqualToAnchor:safe.trailingAnchor]
     ]];
-    self.homeURL = [NSBundle.mainBundle URLForResource:@"home" withExtension:@"html"];
-    [self.web loadFileURL:self.homeURL allowingReadAccessToURL:self.homeURL];
+    self.homeURL = [NSBundle.mainBundle URLForResource:@"home" withExtension:@"html" subdirectory:@"CameraUI"];
+    [self.web loadFileURL:self.homeURL allowingReadAccessToURL:self.homeURL.URLByDeletingLastPathComponent];
 }
 static BOOL privateHost(NSString *host) {
     struct in_addr ip;

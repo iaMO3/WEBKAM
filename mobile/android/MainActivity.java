@@ -39,6 +39,13 @@ public class MainActivity extends Activity {
         back = new Button(this);
         back.setText("‹  Connection");
         back.setAllCaps(false);
+        boolean dark = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+            == Configuration.UI_MODE_NIGHT_YES;
+        int surface = dark ? 0xff12191a : 0xfff2f6f2;
+        layout.setBackgroundColor(surface);
+        back.setBackgroundColor(surface);
+        back.setTextColor(dark ? 0xffbfe7c0 : 0xff265341);
+        back.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         back.setOnClickListener(v -> home());
         layout.addView(back);
         web = new WebView(this);

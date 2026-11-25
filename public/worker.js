@@ -1,4 +1,4 @@
-const cacheName = 'pocketcam-offline-v2';
+const cacheName = 'pocketcam-offline-studio-1';
 const offlinePage = '/offline.html';
 const offlineAssets = ['/style.css', '/icons/pocketcam-192.png'];
 

@@ -7,6 +7,8 @@ const stage = byId('phone-stage');
 const picker = byId('camera-picker');
 const toggle = byId('toggle');
 const floating = byId('float-camera');
+const flash = byId('camera-flash');
+const flashNote = byId('flash-note');
 const mode = byId('native-mode');
 const send = (action, fields = {}) => window.webkit?.messageHandlers.pocketcam.postMessage({ action, ...fields });
 let reportedFrame;
@@ -52,7 +54,12 @@ window.renderPocketCam = (state) => {
     picker.replaceChildren(...lenses.map(({name, id}) => new Option(name, id)));
   }
   picker.value = state.lens;
-  picker.disabled = !lenses.length || state.opening || state.pipStarting;
+  picker.disabled = !lenses.length || state.opening || state.pipStarting || state.flashBusy;
+  flash.hidden = !state.flashAvailable;
+  flash.disabled = state.flashBusy;
+  flash.setAttribute('aria-pressed', String(state.flashOn));
+  flashNote.textContent = state.flashNote;
+  flashNote.hidden = !state.flashNote;
   toggle.textContent = state.running ? 'Stop camera' : 'Start camera';
   toggle.classList.toggle('stop-camera', state.running);
   toggle.disabled = !state.lens;
@@ -72,6 +79,7 @@ form.addEventListener('submit', (event) => {
 byId('retry').addEventListener('click', () => send('retry'));
 picker.addEventListener('change', () => send('lens', {id: picker.value}));
 toggle.addEventListener('click', () => send('camera'));
+flash.addEventListener('click', () => send('flash'));
 floating.addEventListener('click', () => {
   stage.scrollIntoView({block: 'nearest'});
   sendLayout();

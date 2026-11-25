@@ -271,6 +271,7 @@ fn setup_router(origin: &str, camera_origin: &str, certificate: &Certificates) -
         .route("/iphone", get(move || async move { Html(setup) }))
         .route("/style.css", get(web::css))
         .route("/icons/pocketcam-192.png", get(web::icon))
+        .route("/icons/studio-landscape.png", get(web::landscape))
         .route(
             "/setup.js",
             get(|| async { web::asset("text/javascript; charset=utf-8", SETUP_JS) }),

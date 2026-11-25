@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WEBKAM">
-  <meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1b1c20" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f6f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#12191a" media="(prefers-color-scheme: dark)">
   <title>WEBKAM</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -17,11 +17,11 @@
 <body class="camera-app">
   <main class="mobile shell phone">
     <header class="topbar">
-      <span class="brand"><span class="brand-mark" aria-hidden="true"></span>WEBKAM</span>
+      <span class="brand"><span class="brand-mark" aria-hidden="true"></span><span>WEBKAM<small>Camera studio</small></span></span>
       <span id="connection-chip" class="connection-chip" data-state="pending">Connecting</span>
     </header>
     <section class="intro camera-intro">
-      <h1>Camera</h1>
+      <h1>Viewfinder</h1>
       <p id="phone-status" role="status">Checking your connection…</p>
     </section>
     <form id="pair" class="mobile-panel pair-card" hidden>
@@ -34,7 +34,7 @@
         <video id="video" autoplay playsinline muted hidden></video>
         <canvas id="output" aria-label="WEBKAM output preview" hidden></canvas>
         <div id="camera-idle" class="stage-content">
-          <img class="standby-icon" src="/icons/pocketcam-192.png" width="64" height="64" alt="">
+
           <span>Camera is off</span>
         </div>
         <p id="mode" hidden></p>
@@ -48,6 +48,8 @@
           </select>
         </div>
         <button id="toggle" class="primary" type="button">Start camera</button>
+        <button id="camera-flash" class="secondary" type="button" aria-pressed="false" hidden>Flash</button>
+        <p id="flash-note" class="camera-hint" role="status" hidden></p>
         <button id="float-camera" class="secondary" type="button" hidden>Floating preview</button>
         <p id="float-note" class="camera-hint" role="status" hidden></p>
         <p id="camera-hint" class="camera-hint">Keep WEBKAM open while streaming.</p>

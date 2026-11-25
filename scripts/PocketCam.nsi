@@ -1,5 +1,5 @@
 Unicode true
-Name "WEBKAM 2.4.3"
+Name "WEBKAM 1.0.0"
 OutFile "${OUTPUT}"
 InstallDir "$PROGRAMFILES64\PocketCam"
 RequestExecutionLevel admin
@@ -122,6 +122,7 @@ Section "WEBKAM"
     SetOutPath "$PLUGINSDIR"
     File "${ROOT}\target\release\pocketcam.exe"
     File "${ROOT}\target\release\pocketcam_camera.dll"
+    File /oname=WEBKAM.ico "${ROOT}\assets\pocketcam-app.ico"
     File "${ROOT}\THIRD-PARTY-NOTICES.txt"
     File "Setup.ps1"
     File "UsbSupport.ps1"
@@ -135,8 +136,8 @@ Section "WEBKAM"
     ${EndIf}
     WriteUninstaller "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayName" "WEBKAM"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "2.4.3"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayIcon" "$INSTDIR\pocketcam.exe"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "1.0.0"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayIcon" "$INSTDIR\WEBKAM.ico"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "UninstallString" '"$INSTDIR\Uninstall.exe"'
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "NoModify" 1
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "NoRepair" 1

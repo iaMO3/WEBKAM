@@ -6,6 +6,22 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 
+static const CGFloat jpegQuality = .88;
+static const CGFloat largeFrameQuality = .80;
+static const NSUInteger maxJPEGBytes = 1500000;
+
+static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
+    AVCaptureTorchMode mode = on ? AVCaptureTorchModeOn : AVCaptureTorchModeOff;
+    if (!device.hasTorch || ![device isTorchModeSupported:mode] || (on && !device.isTorchAvailable)) return NO;
+    if (device.torchMode == mode) return YES;
+    if (![device lockForConfiguration:NULL]) return NO;
+    BOOL success = YES;
+    if (on) success = [device setTorchModeOnWithLevel:AVCaptureMaxAvailableTorchLevel error:NULL];
+    else device.torchMode = AVCaptureTorchModeOff;
+    [device unlockForConfiguration];
+    return success;
+}
+
 @interface CameraPreview : UIView
 @property (readonly) AVCaptureVideoPreviewLayer *previewLayer;
 @end
@@ -25,7 +41,6 @@
     CMTime _lastFrame;
     NSUInteger _captureEpoch, _width, _height, _fps, _rotation;
     BOOL _followPhone, _sending, _announced;
-    CGFloat _jpegQuality;
 }
 @property (strong) PhoneLink *link;
 @property (strong) CameraInterface *cameraInterface;
@@ -37,6 +52,10 @@
 @property (assign) BOOL portraitPreview;
 @property (assign) BOOL cameraReady;
 @property (assign) BOOL videoLive;
+@property (assign) BOOL flashAvailable;
+@property (assign) BOOL flashOn;
+@property (assign) BOOL flashBusy;
+@property (copy) NSString *flashNote;
 @property (assign) BOOL checking;
 @property (assign) BOOL retry;
 @property (assign) BOOL pairing;
@@ -123,7 +142,7 @@
     } else if ([action isEqualToString:@"retry"]) {
         [self checkPairing];
     } else if ([action isEqualToString:@"lens"] && self.paired
-               && !self.opening && (!self.stream || self.cameraReady) && !self.pipStarting) {
+               && !self.opening && (!self.stream || self.cameraReady) && !self.pipStarting && !self.flashBusy) {
         for (AVCaptureDevice *lens in self.lenses) {
             if ([lens.uniqueID isEqual:payload[@"id"]]) {
                 [self selectLens:lens];
@@ -132,6 +151,8 @@
         }
     } else if ([action isEqualToString:@"camera"] && self.paired && self.lens) {
         [self toggleCamera];
+    } else if ([action isEqualToString:@"flash"] && self.stream && self.cameraReady) {
+        [self toggleFlash];
     } else if ([action isEqualToString:@"pip"] && self.stream && self.cameraReady) {
         [self togglePiP];
     } else if ([action isEqualToString:@"interface-reload"] && !self.pip.pictureInPictureActive) {
@@ -140,7 +161,11 @@
 }
 
 - (void)selectLens:(AVCaptureDevice *)lens {
+    if (self.lens == lens) return;
     self.lens = lens;
+    self.flashAvailable = NO;
+    self.flashOn = NO;
+    self.flashNote = nil;
     [self updateControls];
     if (!self.stream) return;
     dispatch_async(_captureQueue, ^{
@@ -149,6 +174,7 @@
         } else {
             self->_lastFrame = kCMTimeInvalid;
             [self applyCaptureRate];
+            [self publishFlashState:NO];
         }
     });
 }
@@ -164,8 +190,39 @@
         @"preview":@(self.stream && self.cameraReady), @"portrait":@(self.portraitPreview),
         @"lenses":self.lensChoices ?: @[], @"lens":self.lens.uniqueID ?: @"",
         @"pip":@(self.stream && self.cameraReady && self.pip != nil), @"floating":@(self.pip.pictureInPictureActive),
-        @"pipStarting":@(self.pipStarting), @"mode":self.modeText ?: @""
+        @"pipStarting":@(self.pipStarting), @"mode":self.modeText ?: @"",
+        @"flashAvailable":@(self.stream && self.cameraReady && self.flashAvailable),
+        @"flashOn":@(self.flashOn), @"flashBusy":@(self.flashBusy),
+        @"flashNote":self.flashNote ?: @""
     }];
+}
+
+- (void)toggleFlash {
+    if (!self.flashAvailable || self.flashBusy) return;
+    BOOL enable = !self.flashOn;
+    self.flashBusy = YES;
+    self.flashNote = nil;
+    [self updateControls];
+    dispatch_async(_captureQueue, ^{
+        BOOL success = changeTorch(self->_input.device, enable);
+        [self publishFlashState:!success];
+    });
+}
+
+// Read the active camera on the capture queue. Publish only for the current lens and stream.
+- (void)publishFlashState:(BOOL)failed {
+    AVCaptureDevice *device = _input.device;
+    BOOL available = device.hasTorch && [device isTorchModeSupported:AVCaptureTorchModeOn];
+    BOOL on = available && device.torchMode == AVCaptureTorchModeOn;
+    NSUInteger epoch = _captureEpoch;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.epoch != epoch || self.lens != device) return;
+        self.flashAvailable = available;
+        self.flashOn = on;
+        self.flashBusy = NO;
+        self.flashNote = failed ? @"The flash couldn’t switch. It may be temporarily unavailable." : nil;
+        [self updateControls];
+    });
 }
 
 - (void)setStatusText:(NSString *)statusText {
@@ -280,7 +337,6 @@
             self->_socket = [link socketForStream:stream];
             self->_fps = 0;
             self->_lastFrame = kCMTimeInvalid;
-            self->_jpegQuality = .88;
             self->_sending = self->_announced = NO;
             [self->_socket resume];
             [self receiveMode:self->_socket lens:lens];
@@ -335,7 +391,10 @@
     AVCaptureDeviceInput *replacement = lens ? [AVCaptureDeviceInput deviceInputWithDevice:lens error:NULL] : nil;
     if (!replacement) return NO;
     [_capture beginConfiguration];
-    if (_input) [_capture removeInput:_input];
+    if (_input) {
+        if (_input.device.torchMode == AVCaptureTorchModeOn) changeTorch(_input.device, NO);
+        [_capture removeInput:_input];
+    }
     BOOL accepted = [_capture canAddInput:replacement];
     if (accepted) {
         [_capture addInput:replacement];
@@ -369,6 +428,7 @@
     [self updateOrientation];
     [_capture startRunning];
     if (!_capture.isRunning) return NO;
+    [self publishFlashState:NO];
     BOOL floating = _capture.multitaskingCameraAccessEnabled;
     NSUInteger epoch = _captureEpoch;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -442,7 +502,7 @@
     });
 }
 
-- (NSData *)encode:(CVPixelBufferRef)buffer {
+- (NSData *)encode:(CVPixelBufferRef)buffer quality:(CGFloat)quality {
     if (!buffer) return nil;
     CIImage *image = [CIImage imageWithCVPixelBuffer:buffer];
     CGImagePropertyOrientation rotations[] = {
@@ -466,7 +526,7 @@
         imageByApplyingTransform:CGAffineTransformMakeTranslation(-crop.origin.x,-crop.origin.y)];
     CGColorSpaceRef color = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     NSData *jpeg = [_imageContext JPEGRepresentationOfImage:image colorSpace:color
-        options:@{(__bridge NSString *)kCGImageDestinationLossyCompressionQuality:@(_jpegQuality)}];
+        options:@{(__bridge NSString *)kCGImageDestinationLossyCompressionQuality:@(quality)}];
     CGColorSpaceRelease(color);
     return jpeg;
 }
@@ -479,12 +539,10 @@
     if (CMTIME_IS_VALID(_lastFrame) && CMTimeGetSeconds(CMTimeSubtract(pts,_lastFrame)) < .9/_fps) return;
     _lastFrame = pts;
     @autoreleasepool {
-        NSData *jpeg = [self encode:CMSampleBufferGetImageBuffer(sample)];
-        if (!jpeg.length || jpeg.length > 1500000) {
-            _jpegQuality = MAX(.60,_jpegQuality-.06);
-            return;
-        }
-        _jpegQuality = MIN(.88,_jpegQuality+.002);
+        CVImageBufferRef image = CMSampleBufferGetImageBuffer(sample);
+        NSData *jpeg = [self encode:image quality:jpegQuality];
+        if (jpeg.length > maxJPEGBytes) jpeg = [self encode:image quality:largeFrameQuality];
+        if (!jpeg.length || jpeg.length > maxJPEGBytes) return;
         _sending = YES;
         __weak typeof(self) weakSelf = self;
         [socket sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithData:jpeg] completionHandler:^(NSError *error) {
@@ -622,6 +680,7 @@
     dispatch_async(_captureQueue, ^{
         self->_announced = NO;
         self->_lastFrame = kCMTimeInvalid;
+        [self publishFlashState:NO];
     });
 }
 
@@ -632,6 +691,10 @@
     self.stream = nil;
     self.cameraReady = NO;
     self.videoLive = NO;
+    self.flashAvailable = NO;
+    self.flashOn = NO;
+    self.flashBusy = NO;
+    self.flashNote = nil;
     self.portraitPreview = NO;
     self.modeText = nil;
     self.pipStarting = NO;
@@ -645,6 +708,7 @@
         [self->_socket cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure reason:nil];
         self->_socket = nil;
         self->_fps = 0;
+        if (self->_input.device.torchMode == AVCaptureTorchModeOn) changeTorch(self->_input.device, NO);
         [self->_capture stopRunning];
     });
     self.statusText = message;

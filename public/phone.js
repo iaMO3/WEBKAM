@@ -4,6 +4,11 @@ const form = byId('pair');
 const panel = byId('camera');
 const toggle = byId('toggle');
 const floatCamera = byId('float-camera');
+const flash = byId('camera-flash');
+const flashNote = byId('flash-note');
+const JPEG_QUALITY = 0.88;
+const LARGE_FRAME_QUALITY = 0.80;
+const MAX_JPEG_BYTES = 1500000;
 const floatNote = byId('float-note');
 const cameraHint = byId('camera-hint');
 const picker = byId('camera-picker');
@@ -23,6 +28,9 @@ let landscapeAngle = 90;
 let nativePip = false;
 let pendingPip = 0;
 let browserPipRejected = false;
+let flashOn = false;
+let flashBusy = false;
+let cameraSettings = Promise.resolve();
 
 function message(value, state = panel.hidden ? 'pairing' : 'ready') {
   status.textContent = value;
@@ -65,6 +73,47 @@ function constraints(selected) {
   };
 }
 
+function supportsFlash(track) {
+  const torch = track?.getCapabilities?.().torch;
+  return torch === true || (Array.isArray(torch) && torch.includes(true));
+}
+
+function applyCameraSettings(track, requestedFlash) {
+  // applyConstraints replaces the previous settings. Keep the selected resolution
+  // and torch together, and order changes from the PC and phone.
+  const apply = cameraSettings.then(() => {
+    if (track !== media?.getVideoTracks()[0]) return;
+    const settings = constraints(mode);
+    if (supportsFlash(track)) settings.advanced = [{ torch: requestedFlash ?? flashOn }];
+    return track.applyConstraints(settings);
+  });
+  cameraSettings = apply.catch(() => {});
+  return apply;
+}
+
+async function toggleFlash() {
+  const track = media?.getVideoTracks()[0];
+  if (!supportsFlash(track) || busy || flashBusy) return;
+  const next = !flashOn;
+  flashBusy = true;
+  flashNote.hidden = true;
+  updateButtons();
+  try {
+    await applyCameraSettings(track, next);
+    if (track === media?.getVideoTracks()[0]) flashOn = next;
+  } catch {
+    if (track === media?.getVideoTracks()[0]) {
+      flashNote.textContent = 'The flash couldn’t switch. Try again or choose a different rear lens.';
+      flashNote.hidden = false;
+    }
+  } finally {
+    if (track === media?.getVideoTracks()[0]) {
+      flashBusy = false;
+      updateButtons();
+    }
+  }
+}
+
 async function listCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -86,7 +135,7 @@ function setMode(next) {
       ![30, 60].includes(next.fps)) return;
   const cameraModeChanged = next.fps !== mode.fps || Math.max(next.width, next.height) !== Math.max(mode.width, mode.height);
   mode = next;
-  if (cameraModeChanged && media) media.getVideoTracks()[0].applyConstraints(constraints(mode)).catch(() => {});
+  if (cameraModeChanged && media) applyCameraSettings(media.getVideoTracks()[0]).catch(() => {});
   if (media && !canvas.hidden) updateOutput(canvas.width, canvas.height);
   else updateOutput(mode.width, mode.height);
 }
@@ -142,6 +191,9 @@ form.addEventListener('submit', async (event) => {
 function updateButtons() {
   toggle.disabled = busy;
   picker.disabled = busy;
+  flash.hidden = !supportsFlash(media?.getVideoTracks()[0]);
+  flash.disabled = busy || flashBusy;
+  flash.setAttribute('aria-pressed', String(flashOn));
   toggle.textContent = media ? 'Stop camera' : 'Start camera';
   toggle.classList.toggle('stop-camera', !!media);
   const available = !!media && (androidPip || (!browserPipRejected && video.readyState >= 2 && browserPipSupported()));
@@ -238,6 +290,10 @@ function stopCamera() {
   generation += 1;
   media?.getTracks().forEach((track) => track.stop());
   media = undefined;
+  cameraSettings = Promise.resolve();
+  flashOn = false;
+  flashBusy = false;
+  flashNote.hidden = true;
   if (document.pictureInPictureElement === video) document.exitPictureInPicture().catch(() => {});
   if (video.webkitPresentationMode === 'picture-in-picture') {
     try { video.webkitSetPresentationMode('inline'); } catch {}
@@ -381,7 +437,6 @@ function draw() {
 function sendFrames(current, connection) {
   const track = media?.getVideoTracks()[0];
   let nextFrame = 0;
-  let jpegQuality = 0.88;
   let mediaTime = -1;
   let encoding = false;
   const schedule = 'requestVideoFrameCallback' in video
@@ -396,29 +451,33 @@ function sendFrames(current, connection) {
     const period = 1000 / mode.fps;
     if (track?.muted || !video.videoWidth || video.readyState < 2 || video.currentTime === mediaTime ||
         now + period * 0.32 < nextFrame) return;
-    if (encoding || connection.bufferedAmount > 450000) {
-      jpegQuality = Math.max(0.64, jpegQuality - 0.04);
-      return;
-    }
+    // Skip stale frames while encoding or waiting for the connection.
+    if (encoding || connection.bufferedAmount > 450000) return;
     encoding = true;
     mediaTime = video.currentTime;
     nextFrame = Math.max(nextFrame + period, now + period * 0.52);
-    const encodeStart = performance.now();
+    const frameMode = mode;
     draw();
-    canvas.toBlob((jpeg) => {
-      encoding = false;
-      if (performance.now() - encodeStart > period * 0.8 || (jpeg && jpeg.size > 1250000)) {
-        jpegQuality = Math.max(0.64, jpegQuality - 0.035);
-      } else if (connection.bufferedAmount < 64000) {
-        jpegQuality = Math.min(0.88, jpegQuality + 0.002);
-      }
-      if (!jpeg || jpeg.size > 1500000 || current !== generation || connection !== socket ||
-          connection.readyState !== WebSocket.OPEN || connection.bufferedAmount > 750000) return;
-      connection.send(jpeg);
-      if (connectionChip.dataset.state !== 'live') {
-        message('Live on your computer.', 'live');
-      }
-    }, 'image/jpeg', jpegQuality);
+
+    function encode(quality) {
+      canvas.toBlob((jpeg) => {
+        if (!jpeg || current !== generation || connection !== socket || frameMode !== mode ||
+            connection.readyState !== WebSocket.OPEN || connection.bufferedAmount > 750000) {
+          encoding = false;
+          return;
+        }
+        // Retry just this frame when it exceeds the receiver’s message limit.
+        if (jpeg.size > MAX_JPEG_BYTES && quality === JPEG_QUALITY) {
+          encode(LARGE_FRAME_QUALITY);
+          return;
+        }
+        encoding = false;
+        if (jpeg.size > MAX_JPEG_BYTES) return;
+        connection.send(jpeg);
+        if (connectionChip.dataset.state !== 'live') message('Live on your computer.', 'live');
+      }, 'image/jpeg', quality);
+    }
+    encode(JPEG_QUALITY);
   }
   schedule(frame);
 }
@@ -434,6 +493,7 @@ picker.addEventListener('change', () => {
   }
 });
 navigator.mediaDevices?.addEventListener('devicechange', listCameras);
+flash.addEventListener('click', toggleFlash);
 floatCamera.addEventListener('click', toggleFloatingPreview);
 video.addEventListener('loadeddata', updateButtons);
 for (const event of ['enterpictureinpicture', 'leavepictureinpicture', 'webkitpresentationmodechanged']) {

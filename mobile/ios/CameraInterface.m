@@ -117,7 +117,7 @@
         [self render:self.state];
     } else if ([action isEqualToString:@"layout"]) {
         [self updateStage:payload];
-    } else if (self.ready && [@[@"pair", @"retry", @"lens", @"camera", @"pip"] containsObject:action]) {
+    } else if (self.ready && [@[@"pair", @"retry", @"lens", @"camera", @"flash", @"pip"] containsObject:action]) {
         self.action(action,payload);
     }
 }

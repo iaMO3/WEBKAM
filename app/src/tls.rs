@@ -118,7 +118,7 @@ impl Certificates {
 <key>PayloadUUID</key><string>{profile_id}</string>
 <key>PayloadDisplayName</key><string>WEBKAM</string>
 <key>PayloadOrganization</key><string>WEBKAM</string>
-<key>PayloadDescription</key><string>Adds WEBKAM to your Home Screen and installs the certificate for this PC.</string>
+<key>PayloadDescription</key><string>Adds Camera Studio to your Home Screen as WEBKAM and installs this computer’s pairing certificate.</string>
 <key>PayloadContent</key><array><dict>
 <key>PayloadType</key><string>com.apple.security.root</string>
 <key>PayloadVersion</key><integer>1</integer>

@@ -546,7 +546,7 @@ h2 {
 }
 .qr-slip i {
   aspect-ratio: 1;
-  background: white url("media/pairing.webp") 88.4% 45.8% / 800% auto no-repeat;
+  background: white url("media/sample-qr.png") center / contain no-repeat;
 }
 .call-photo {
   width: 100%;

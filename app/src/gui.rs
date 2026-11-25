@@ -77,8 +77,8 @@ pub fn show(
     let options = eframe::NativeOptions {
         viewport: ViewportBuilder::default()
             .with_icon(icon.clone())
-            .with_inner_size([1060.0, 765.0])
-            .with_min_inner_size([510.0, 500.0]),
+            .with_inner_size([1100.0, 745.0])
+            .with_min_inner_size([360.0, 360.0]),
         renderer: eframe::Renderer::Glow,
         ..Default::default()
     };
@@ -135,7 +135,7 @@ pub fn show(
                     ),
                     TextureOptions::LINEAR,
                 ),
-                lens: ctx.load_texture("Camera lens", optics::lens(320), TextureOptions::LINEAR),
+                compact_page: CompactPage::Phone,
                 backdrop: ctx.load_texture(
                     "Preview backdrop",
                     optics::backdrop(),
@@ -147,6 +147,12 @@ pub fn show(
         }),
     )
     .map_err(|error| anyhow::anyhow!("{error}"))
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum CompactPage {
+    Phone,
+    Video,
 }
 
 struct Desktop {
@@ -173,7 +179,7 @@ struct Desktop {
     last_frame: Option<Arc<VideoFrame>>,
     preview: Option<TextureHandle>,
     brand: TextureHandle,
-    lens: TextureHandle,
+    compact_page: CompactPage,
     backdrop: TextureHandle,
 }
 
@@ -293,14 +299,11 @@ impl Desktop {
     }
 
     fn preview_panel(&mut self, ui: &mut egui::Ui, status: &Status) {
-        heading(ui, "Camera preview");
-        ui.add_space(4.0);
         let width = ui.available_width();
-        let height = (width * 9.0 / 16.0).clamp(210.0, 480.0);
+        let height = (width * 9.0 / 16.0).clamp(176.0, 510.0);
         let (rect, _) = ui.allocate_exact_size(vec2(width, height), egui::Sense::hover());
         let painter = ui.painter_at(rect);
-        let uv = egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0));
-        painter.rect_filled(rect, 18, STAGE);
+        painter.rect_filled(rect, 17, STAGE);
         let reveal = transition(ui, "preview-reveal", self.preview.is_some());
         if let Some(preview) = &self.preview {
             let image = preview.size_vec2();
@@ -311,69 +314,82 @@ impl Desktop {
                 .corner_radius(14)
                 .paint_at(ui, target);
         } else {
+            let size = self.backdrop.size_vec2();
+            let aspect = size.x / size.y;
+            let crop = rect.aspect_ratio() / aspect;
+            let uv = egui::Rect::from_center_size(
+                egui::pos2(0.5, 0.5),
+                vec2(crop.min(1.0), (1.0 / crop).min(1.0)),
+            );
             egui::Image::new(&self.backdrop)
-                .corner_radius(18)
+                .uv(uv)
+                .corner_radius(17)
                 .paint_at(ui, rect);
-            let center = rect.center() - vec2(0.0, 22.0);
-            let paired = transition(ui, "paired-lens", status.paired);
-            let diameter = (rect.height() * 0.46).clamp(84.0, 158.0) * (1.0 + 0.07 * paired);
-            let lens = egui::Rect::from_center_size(center, Vec2::splat(diameter));
-            painter.image(self.lens.id(), lens, uv, Color32::WHITE);
-            let message = if status.paired {
-                "Camera is off"
-            } else {
-                "Waiting for your phone"
-            };
-            painter.text(
-                lens.center_bottom() + vec2(0.0, 8.0),
-                egui::Align2::CENTER_TOP,
-                message,
-                display_font(21.0),
-                Color32::from_rgb(246, 247, 252),
-            );
-            let hint = if status.paired {
-                "Tap Start camera on your phone."
+            let inset = if width < 440.0 { 18.0 } else { 26.0 };
+            let caption = rect.left_bottom() + vec2(inset, -inset);
+            let (message, hint) = if status.paired {
+                ("Your phone is paired", "Tap Start camera on your phone.")
             } else if self.qr.is_some() {
-                "Scan the QR code to connect."
+                ("Ready to pair", "Scan the QR code with your phone.")
             } else {
-                "Choose a connection to get started."
+                (
+                    "Waiting for a connection",
+                    "Choose how to connect your phone.",
+                )
             };
             painter.text(
-                lens.center_bottom() + vec2(0.0, 38.0),
-                egui::Align2::CENTER_TOP,
-                hint,
-                FontId::proportional(13.0),
-                Color32::from_rgb(191, 195, 209),
+                caption - vec2(0.0, 22.0),
+                egui::Align2::LEFT_BOTTOM,
+                message,
+                display_font(if width < 440.0 { 25.0 } else { 34.0 }),
+                Color32::WHITE,
             );
+            painter.text(
+                caption,
+                egui::Align2::LEFT_BOTTOM,
+                hint,
+                FontId::proportional(14.0),
+                Color32::from_rgb(224, 241, 235),
+            );
+            // Static framing marks stay out of the live camera feed.
+            let mark = rect.shrink(16.0);
+            for (point, direction) in [
+                (mark.right_top(), vec2(-1.0, 1.0)),
+                (mark.right_bottom(), vec2(-1.0, -1.0)),
+            ] {
+                let stroke = Stroke::new(1.0_f32, Color32::from_white_alpha(144));
+                painter.line_segment([point, point + vec2(direction.x * 14.0, 0.0)], stroke);
+                painter.line_segment([point, point + vec2(0.0, direction.y * 14.0)], stroke);
+            }
         }
-
-        let live_text = if status.live {
+        let label = if status.live {
             format!("Live  ·  {} FPS in", status.fps)
         } else {
-            "Standby".to_string()
+            "Standby".to_owned()
         };
-        let galley = painter.layout_no_wrap(live_text, display_font(12.0), Color32::WHITE);
-        let indicator = egui::Rect::from_min_size(
-            rect.min + vec2(14.0, 14.0),
-            vec2(galley.size().x + 36.0, 27.0),
+        let text = painter.layout_no_wrap(label, display_font(12.0), Color32::WHITE);
+        let chip = egui::Rect::from_min_size(
+            rect.min + vec2(16.0, 16.0),
+            vec2(text.size().x + 34.0, 26.0),
         );
-        painter.rect_filled(indicator, 14, Color32::from_black_alpha(155));
+        painter.rect_filled(chip, 13, Color32::from_black_alpha(155));
         painter.circle_filled(
-            indicator.left_center() + vec2(13.0, 0.0),
-            3.3,
+            chip.left_center() + vec2(12.0, 0.0),
+            3.0,
             if status.live {
-                Color32::from_rgb(89, 223, 158)
+                Color32::from_rgb(146, 243, 187)
             } else {
-                Color32::from_gray(178)
+                Color32::from_gray(207)
             },
         );
         painter.galley(
-            indicator.left_center() + vec2(23.0, -galley.size().y / 2.0),
-            galley,
+            chip.left_center() + vec2(22.0, -text.size().y / 2.0),
+            text,
             Color32::WHITE,
         );
+    }
 
-        ui.add_space(6.0);
+    fn video_controls(&mut self, ui: &mut egui::Ui) {
         let previous = self.settings;
         section(ui).show(ui, |ui| {
             ui.set_width(ui.available_width());
@@ -392,64 +408,67 @@ impl Desktop {
                 });
             });
             ui.add_space(5.0);
-            let orientation = |ui: &mut egui::Ui, settings: &mut Settings| {
-                segment_group(
-                    ui,
-                    "Orientation",
-                    &mut settings.orientation,
-                    [
-                        (Orientation::Auto, "Auto"),
-                        (Orientation::Landscape, "Landscape"),
-                        (Orientation::Portrait, "Portrait"),
-                    ],
-                    75.0,
-                );
-            };
-            let compact = ui.available_width() < 550.0;
-            if compact {
-                orientation(ui, &mut self.settings);
-            }
-            ui.horizontal(|ui| {
-                ui.spacing_mut().item_spacing.x = 16.0;
-                if !compact {
-                    orientation(ui, &mut self.settings);
-                }
-                segment_group(
-                    ui,
-                    "Resolution",
-                    &mut self.settings.quality,
-                    [(Quality::Hd, "720p"), (Quality::FullHd, "1080p")],
-                    62.0,
-                );
-                segment_group(
-                    ui,
-                    if cfg!(target_os = "macos") {
-                        "Phone FPS"
-                    } else {
-                        "Frame rate"
-                    },
-                    &mut self.settings.fps,
-                    [(30, "30 FPS"), (60, "60 FPS")],
-                    62.0,
-                );
-            });
-            ui.add_space(2.0);
-            ui.separator();
-            ui.horizontal(|ui| {
-                detail(ui, "Rotate clockwise");
-                segments(
-                    ui,
-                    "Rotate clockwise",
-                    &mut self.settings.rotation,
-                    &[
-                        (Rotation::None, "0°"),
-                        (Rotation::Right, "90°"),
-                        (Rotation::Half, "180°"),
-                        (Rotation::Left, "270°"),
-                    ],
-                    50.0,
-                );
-            });
+            // Give each group its own cell. At narrow widths every label and choice gets a full row.
+            let columns = if ui.available_width() >= 468.0 { 2 } else { 1 };
+            egui::Grid::new("video-grid")
+                .num_columns(columns)
+                .min_col_width(if columns == 2 {
+                    (ui.available_width() - 16.0) * 0.5
+                } else {
+                    0.0
+                })
+                .spacing(vec2(16.0, 12.0))
+                .show(ui, |ui| {
+                    segment_group(
+                        ui,
+                        "Orientation",
+                        &mut self.settings.orientation,
+                        [
+                            (Orientation::Auto, "Auto"),
+                            (Orientation::Landscape, "Landscape"),
+                            (Orientation::Portrait, "Portrait"),
+                        ],
+                        61.0,
+                    );
+                    if columns == 1 {
+                        ui.end_row();
+                    }
+                    segment_group(
+                        ui,
+                        "Resolution",
+                        &mut self.settings.quality,
+                        [(Quality::Hd, "720p"), (Quality::FullHd, "1080p")],
+                        60.0,
+                    );
+                    ui.end_row();
+                    segment_group(
+                        ui,
+                        "Rotate clockwise",
+                        &mut self.settings.rotation,
+                        [
+                            (Rotation::None, "0°"),
+                            (Rotation::Right, "90°"),
+                            (Rotation::Half, "180°"),
+                            (Rotation::Left, "270°"),
+                        ],
+                        45.0,
+                    );
+                    if columns == 1 {
+                        ui.end_row();
+                    }
+                    segment_group(
+                        ui,
+                        if cfg!(target_os = "macos") {
+                            "Phone FPS"
+                        } else {
+                            "Frame rate"
+                        },
+                        &mut self.settings.fps,
+                        [(30, "30 FPS"), (60, "60 FPS")],
+                        60.0,
+                    );
+                    ui.end_row();
+                });
         });
         if self.settings != previous {
             self.save_settings();
@@ -457,11 +476,10 @@ impl Desktop {
     }
 
     fn pairing_panel(&mut self, ui: &mut egui::Ui, status: &Status) {
-        heading(ui, "Connection");
-        ui.add_space(4.0);
         section(ui).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            title(ui, "Connect your phone");
+            title(ui, "Phone connection");
+            ui.add_space(2.0);
             let mut connection = self.connection;
             egui::ComboBox::from_id_salt("connection")
                 .width(ui.available_width())
@@ -503,7 +521,7 @@ impl Desktop {
             if let (Some(link), Some(qr)) = (&self.link, &self.qr) {
                 ui.add_space(3.0);
                 Frame::new()
-                    .fill(palette(ui.visuals().dark_mode).background)
+                    .fill(palette(ui.visuals().dark_mode).ticket)
                     .corner_radius(12)
                     .inner_margin(12)
                     .show(ui, |ui| {
@@ -513,9 +531,10 @@ impl Desktop {
                                 let side = qr.size()[0] as f32 * 4.0;
                                 let side = side.min(ui.available_width());
                                 ui.add(
-                                    egui::Image::new((qr.id(), Vec2::splat(side))).corner_radius(9),
+                                    egui::Image::new((qr.id(), Vec2::splat(side))).corner_radius(5),
                                 );
                                 ui.add_space(2.0);
+                                ui.separator();
                                 detail(ui, "Pairing code");
                                 ui.label(
                                     RichText::new(format!("{}  {}", &code[..4], &code[4..]))
@@ -534,6 +553,9 @@ impl Desktop {
                             }
                         });
                     });
+                if status.code.is_some() {
+                    detail(ui, "On iPhone, use Safari to download the profile.");
+                }
                 ui.horizontal_wrapped(|ui| {
                     detail(ui, &link.url);
                     if ui
@@ -554,6 +576,26 @@ impl Desktop {
                 egui::CollapsingHeader::new("Network adapter")
                     .default_open(self.link.is_none())
                     .show(ui, |ui| self.adapter_controls(ui));
+            }
+        });
+    }
+
+    fn connection_column(&mut self, ui: &mut egui::Ui, status: &Status) {
+        self.pairing_panel(ui, status);
+        ui.add_space(3.0);
+        section(ui).show(ui, |ui| {
+            ui.set_width(ui.available_width());
+            title(ui, "Camera output");
+            self.camera_footer(ui);
+            if matches!(self.camera_status, Some(Ok(()))) {
+                detail(
+                    ui,
+                    if cfg!(target_os = "macos") {
+                        "Choose VirtualCamera4Mac in your video app."
+                    } else {
+                        "Choose WEBKAM (Windows Virtual Camera) in your video app."
+                    },
+                );
             }
         });
     }
@@ -643,7 +685,8 @@ impl Desktop {
                     .size(12.0)
                     .color(palette(ui.visuals().dark_mode).warning),
                 )
-                .on_hover_text(format!("{hint}\n{error}"));
+                .on_hover_text(error);
+                detail(ui, hint);
             }
             None => {
                 ui.label(
@@ -711,72 +754,89 @@ impl eframe::App for Desktop {
         let delay = if status.live {
             1000 / u64::from(status.settings.fps)
         } else {
-            250
+            400
         };
         ui.ctx().request_repaint_after(Duration::from_millis(delay));
+        let margin = if ui.available_width() < 590.0 { 12 } else { 24 };
         egui::CentralPanel::default()
             .frame(
                 Frame::new()
                     .fill(palette(ui.visuals().dark_mode).background)
-                    .inner_margin(egui::Margin::symmetric(26, 17)),
+                    .inner_margin(egui::Margin::symmetric(margin, 12)),
             )
-            .show_inside(ui, |ui| {
-                let roomy = ui.available_width() >= 660.0;
+            .show_inside(ui, |panel| {
+                let bounds = panel.available_rect_before_wrap();
+                let centered = egui::Rect::from_center_size(
+                    bounds.center(),
+                    vec2(bounds.width().min(1480.0), bounds.height()),
+                );
+                let mut workspace = panel.new_child(egui::UiBuilder::new().max_rect(centered));
+                let ui = &mut workspace;
                 ui.horizontal(|ui| {
-                    let (mark, _) = ui.allocate_exact_size(Vec2::splat(35.0), egui::Sense::hover());
+                    let (mark, _) = ui.allocate_exact_size(Vec2::splat(36.0), egui::Sense::hover());
                     egui::Image::new(&self.brand).paint_at(ui, mark);
-                    ui.label(RichText::new("WEBKAM").font(display_font(23.0)));
+                    ui.vertical(|ui| {
+                        ui.spacing_mut().item_spacing.y = 0.0;
+                        ui.label(RichText::new("WEBKAM").font(display_font(21.0)));
+                        detail(ui, "Camera studio");
+                    });
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         self.appearance_switch(ui);
-                        if roomy {
-                            ui.label(
-                                RichText::new("Theme")
-                                    .size(13.0)
-                                    .color(palette(ui.visuals().dark_mode).muted),
-                            );
-                            ui.add_space(12.0);
-                            self.camera_footer(ui);
-                        }
                     });
                 });
-                if !roomy {
-                    self.camera_footer(ui);
-                }
-                ui.add_space(7.0);
+                ui.add_space(3.0);
                 ui.separator();
-                ui.add_space(9.0);
+                ui.add_space(5.0);
                 egui::ScrollArea::vertical()
                     .auto_shrink([false, false])
                     .show(ui, |ui| {
                         let width = ui.available_width();
-                        if width < 780.0 {
+                        if width < 760.0 {
                             self.preview_panel(ui, &status);
-                            ui.add_space(12.0);
-                            self.pairing_panel(ui, &status);
+                            ui.add_space(3.0);
+                            segments(
+                                ui,
+                                "Studio controls",
+                                &mut self.compact_page,
+                                &[
+                                    (CompactPage::Phone, "Connection"),
+                                    (CompactPage::Video, "Video settings"),
+                                ],
+                                ((width - 10.0) / 2.0).floor(),
+                            );
+                            match self.compact_page {
+                                CompactPage::Phone => self.connection_column(ui, &status),
+                                CompactPage::Video => self.video_controls(ui),
+                            }
                         } else {
-                            let right = (width * 0.30).clamp(260.0, 330.0);
-                            let gap = 22.0;
-                            let left = width - gap - right;
+                            let left = (width * 0.28).clamp(236.0, 340.0);
+                            let gap = 16.0;
+                            let right = width - left - gap;
                             ui.horizontal_top(|ui| {
                                 ui.spacing_mut().item_spacing.x = gap;
-                                for (column, is_preview) in [(left, true), (right, false)] {
-                                    ui.allocate_ui_with_layout(
-                                        vec2(column, 0.0),
-                                        Layout::top_down(Align::Min),
-                                        |ui| {
-                                            ui.set_width(column);
-                                            ui.spacing_mut().item_spacing.x = 8.0;
-                                            if is_preview {
-                                                self.preview_panel(ui, &status);
-                                            } else {
-                                                self.pairing_panel(ui, &status);
-                                            }
-                                        },
-                                    );
-                                }
+                                ui.allocate_ui_with_layout(
+                                    vec2(left, 0.0),
+                                    Layout::top_down(Align::Min),
+                                    |ui| {
+                                        ui.set_width(left);
+                                        ui.spacing_mut().item_spacing.x = 8.0;
+                                        self.connection_column(ui, &status);
+                                    },
+                                );
+                                ui.allocate_ui_with_layout(
+                                    vec2(right, 0.0),
+                                    Layout::top_down(Align::Min),
+                                    |ui| {
+                                        ui.set_width(right);
+                                        ui.spacing_mut().item_spacing.x = 8.0;
+                                        self.preview_panel(ui, &status);
+                                        ui.add_space(3.0);
+                                        self.video_controls(ui);
+                                    },
+                                );
                             });
                         }
-                        ui.add_space(5.0);
+                        ui.add_space(4.0);
                     });
             });
     }
@@ -786,16 +846,12 @@ fn section(ui: &egui::Ui) -> Frame {
     Frame::new()
         .fill(palette(ui.visuals().dark_mode).surface)
         .stroke(Stroke::new(1.0_f32, palette(ui.visuals().dark_mode).border))
-        .corner_radius(16)
-        .inner_margin(18)
+        .corner_radius(15)
+        .inner_margin(16)
 }
 
 fn display_font(size: f32) -> FontId {
     FontId::new(size, egui::FontFamily::Name("Display".into()))
-}
-
-fn heading(ui: &mut egui::Ui, text: &str) {
-    ui.label(RichText::new(text).font(display_font(27.0)));
 }
 
 fn title(ui: &mut egui::Ui, text: &str) {
@@ -860,26 +916,61 @@ fn segments<T: Copy + PartialEq>(
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 2.0;
-                    for &(value, text) in choices {
-                        let selected = *current == value;
-                        let t = transition(ui, text, selected);
+                    let selected_index = choices
+                        .iter()
+                        .position(|&(value, _)| value == *current)
+                        .unwrap_or(0);
+                    let duration = ui.style().animation_time;
+                    let position = if duration > 0.0 {
+                        ui.ctx().animate_value_with_time(
+                            ui.id().with("selection"),
+                            selected_index as f32,
+                            duration,
+                        )
+                    } else {
+                        selected_index as f32
+                    };
+                    let thumb = ui.painter().add(egui::Shape::Noop);
+                    let mut first = egui::Rect::NOTHING;
+                    let mut second = egui::Rect::NOTHING;
+                    for (index, &(value, text)) in choices.iter().enumerate() {
+                        let weight = (1.0 - (position - index as f32).abs()).clamp(0.0, 1.0);
                         let button = egui::Button::selectable(
-                            selected,
+                            *current == value,
                             RichText::new(text)
                                 .font(display_font(13.0))
-                                .color(if selected { p.ink } else { p.muted }),
+                                .color(p.muted.lerp_to_gamma(p.selected_ink, weight)),
                         )
                         .min_size(vec2(width, 28.0))
-                        .corner_radius(8)
-                        .fill(p.track.lerp_to_gamma(p.selected, t))
-                        .stroke(if selected {
-                            Stroke::new(1.0_f32, p.border)
-                        } else {
-                            Stroke::NONE
-                        });
-                        if ui.add(button).clicked() {
+                        .fill(Color32::TRANSPARENT)
+                        .stroke(Stroke::NONE)
+                        .corner_radius(7);
+                        let response = ui.add(button);
+                        if response.hovered() || response.has_focus() {
+                            ui.painter().rect_stroke(
+                                response.rect,
+                                7,
+                                Stroke::new(1.0_f32, p.accent),
+                                egui::StrokeKind::Inside,
+                            );
+                        }
+                        if index == position.floor() as usize {
+                            first = response.rect;
+                        }
+                        if index == position.ceil() as usize {
+                            second = response.rect;
+                        }
+                        if response.clicked() {
                             *current = value;
                         }
+                    }
+                    if first.is_positive() && second.is_positive() {
+                        let rect = egui::Rect::from_min_max(
+                            first.min.lerp(second.min, position.fract()),
+                            first.max.lerp(second.max, position.fract()),
+                        );
+                        ui.painter()
+                            .set(thumb, egui::Shape::rect_filled(rect, 7, p.selected));
                     }
                 });
             });

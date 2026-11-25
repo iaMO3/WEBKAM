@@ -334,6 +334,10 @@ struct Phone {
     tls: bool,
 }
 
+pub async fn landscape() -> Response {
+    asset("image/png", include_bytes!("../../assets/studio-landscape.png").as_slice())
+}
+
 pub fn phone_router(app: App, origin: &str) -> Router {
     // The setup page is the HTTP listener on the same PC. Only the empty TLS
     // probe is readable cross-origin. Pairing and camera APIs keep their guards.
@@ -358,6 +362,7 @@ pub fn phone_router(app: App, origin: &str) -> Router {
         )
         .route("/offline.html", get(|| async { Html(OFFLINE_PAGE) }))
         .route("/icons/pocketcam-192.png", get(icon))
+        .route("/icons/studio-landscape.png", get(landscape))
         .route(
             "/icons/pocketcam-512.png",
             get(|| async { asset("image/png", ICON_512) }),
