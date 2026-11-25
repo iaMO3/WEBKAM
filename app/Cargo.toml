@@ -1,0 +1,26 @@
+[package]
+name = "pocketcam"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow = "1.0"
+axum = { version = "0.8", features = ["ws"] }
+axum-server = { version = "0.8", default-features = false, features = ["tls-rustls-no-provider"] }
+base64 = "0.23"
+eframe = { version = "0.34", default-features = false, features = ["default_fonts", "glow"] }
+pem = "4"
+qrcode = { version = "0.14", default-features = false }
+rand = "0.9"
+raw-window-handle = "0.6"
+rcgen = "0.14"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+time = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "time", "io-util", "signal", "sync", "process"] }
+uuid = { version = "1", features = ["v4"] }
+windows = { workspace = true, features = ["Win32_NetworkManagement_IpHelper", "Win32_NetworkManagement_Ndis", "Win32_Networking_WinSock", "Win32_Security_Authorization", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Dwm"] }
+yuv = "0.8"
+zune-core = "0.5"
+zune-jpeg = "0.5"

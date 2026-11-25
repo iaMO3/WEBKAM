@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src file:; style-src file:; script-src file:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>PocketCam</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="camera.js"></script>
+</head>
+<body class="camera-app">
+  <main class="mobile shell phone">
+    <header class="topbar">
+      <span class="brand"><span class="brand-mark" aria-hidden="true"></span>PocketCam</span>
+      <span id="connection-chip" class="connection-chip" data-state="pending">Connecting</span>
+    </header>
+    <section class="intro camera-intro">
+      <h1>Camera</h1>
+      <p id="phone-status" role="status">Connecting to your Windows PC…</p>
+    </section>
+    <form id="pair" class="mobile-panel pair-card" hidden>
+      <label for="pin">Pairing code</label>
+      <input id="pin" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="0000 0000" required>
+      <button id="pair-button" class="primary" type="submit">Pair phone</button>
+    </form>
+    <button id="retry" class="button primary" type="button" hidden>Retry connection</button>
+    <section id="camera" class="camera-workspace" aria-label="Camera controls" hidden>
+      <div id="phone-stage" class="stage phone-stage" data-orientation="landscape" aria-label="Camera preview">
+        <div id="camera-idle" class="stage-content">
+          <img class="standby-icon" src="icons/pocketcam-192.png" width="64" height="64" alt="">
+          <span id="camera-idle-text">Camera is off</span>
+        </div>
+      </div>
+      <div class="camera-controls">
+        <p id="native-mode" class="camera-hint" hidden></p>
+        <div class="lens-control">
+          <label for="camera-picker">Camera lens</label>
+          <select id="camera-picker"></select>
+        </div>
+        <button id="toggle" class="primary" type="button">Start camera</button>
+        <button id="float-camera" class="secondary" type="button" hidden>Floating preview</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

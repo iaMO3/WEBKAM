@@ -1,0 +1,12 @@
+target/
+dist/
+.env
+.env.*
+*.mobileconfig
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.pem
+*.key
+*.mobileprovision

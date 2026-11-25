@@ -1,0 +1,12 @@
+[package]
+name = "pocketcam-camera"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "pocketcam_camera"
+crate-type = ["cdylib"]
+
+[dependencies]
+windows = { workspace = true, features = ["Win32_Media_KernelStreaming"] }
+windows-core.workspace = true
