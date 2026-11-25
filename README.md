@@ -29,6 +29,17 @@ Use your iPhone or Android as a webcam over Wi-Fi or supported USB connections. 
   <tr><td><strong>Rear camera.</strong> Flash is on in Video settings, beside Resolution.</td><td><strong>Front camera.</strong> Screen light is on. The white display lights your face.</td></tr>
 </table>
 
+<p align="center">
+  <a href="https://iamo3.github.io/WEBKAM/#panel-phone">
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/camera-light-demo-still.png">
+      <img src="docs/media/camera-light-demo.gif" width="370" alt="The rear Flash turns on. Selecting Front switches the light off. Tapping Screen light turns the phone display white.">
+    </picture>
+  </a>
+  <br>
+  <a href="https://iamo3.github.io/WEBKAM/#panel-phone">Try the lighting controls in the interactive demo</a>
+</p>
+
 The desktop receiver, mobile companions and iPhone Home Screen app share light and dark themes. The screenshots use example pairing details and a sample camera feed. Select a screenshot for the full image, or [explore the pairing screen and framing demo](https://iamo3.github.io/WEBKAM/#panel-pairing).
 
 ## Install and pair
