@@ -23,10 +23,10 @@ Use your iPhone or Android as a webcam over Wi-Fi or supported USB connections. 
 <table>
   <tr><th align="left">Windows receiver</th><th align="left">iPhone companion</th></tr>
   <tr>
-    <td width="72%" align="center"><a href="docs/media/desktop.webp"><img src="docs/media/desktop.webp" width="690" alt="Camera Studio in dark mode with its standby landscape, pairing code and video controls"></a></td>
-    <td width="28%" align="center"><a href="docs/media/phone.webp"><img src="docs/media/phone.webp" width="184" alt="Mobile viewfinder with a sample camera feed, lens picker and flash control"></a></td>
+    <td width="72%" align="center"><a href="docs/media/desktop.webp?raw=true&amp;v=lighting-1"><img src="docs/media/desktop.webp?raw=true&amp;v=lighting-1" width="690" alt="Windows receiver showing the rear Flash button set to On beside Resolution"></a></td>
+    <td width="28%" align="center"><a href="docs/media/phone.webp?raw=true&amp;v=lighting-1"><img src="docs/media/phone.webp?raw=true&amp;v=lighting-1" width="184" alt="iPhone with Front Camera selected, Screen light active and a white display surrounding the sample feed"></a></td>
   </tr>
-  <tr><td>Use the sidebar to pair. In narrow windows, switch between Connection and Video settings below the preview.</td><td>Choose a lens or switch the light on while streaming. Use Flash for a supported rear camera or Screen light for the front camera.</td></tr>
+  <tr><td><strong>Rear camera.</strong> Flash is on in Video settings, beside Resolution.</td><td><strong>Front camera.</strong> Screen light is on. The white display lights your face.</td></tr>
 </table>
 
 The desktop receiver, mobile companions and iPhone Home Screen app share light and dark themes. The screenshots use example pairing details and a sample camera feed. Select a screenshot for the full image, or [explore the pairing screen and framing demo](https://iamo3.github.io/WEBKAM/#panel-pairing).
