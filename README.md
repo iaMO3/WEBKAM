@@ -1,10 +1,12 @@
-# ![PocketCam — Your phone. Your webcam.](docs/media/pocketcam-banner.png)
+# ![PocketCam — Your phone. Your webcam. Free to use.](docs/media/pocketcam-banner.png)
 
-Use your iPhone or Android as a webcam in Discord, Zoom, and other Windows apps. PocketCam is a native Windows 11 app written in Rust. It pairs with your phone over Wi-Fi or a supported USB connection and exposes the video through a Windows virtual camera.
+Use your iPhone or Android as a webcam in Discord, Zoom, and other Windows apps. PocketCam is a native Windows 11 app written in Rust. Pair over Wi-Fi or a supported USB connection and capture video at up to **1080p at 60 FPS**.
 
 **[Product website](https://iamo3.github.io/PocketCam/)** · **[Downloads](https://github.com/iaMO3/PocketCam/releases/tag/v2.4.2)** · **[Quick start](#install-and-pair)** · **[Build from source](#build-from-source)**
 
 ## Downloads
+
+**PocketCam is free to download and use on Windows, iPhone, and Android.**
 
 | Platform | Download | Requirements |
 | --- | --- | --- |
@@ -32,7 +34,7 @@ Choose **Auto**, **Landscape**, or **Portrait** on Windows. Auto follows the pho
 
 Use the phone’s **Camera** picker to choose a front or rear camera, or select a specific lens once the phone grants camera permission. The list depends on what the phone makes available to PocketCam.
 
-The default is **1080p at 30 FPS**. The preview shows incoming FPS. The Windows virtual camera paces samples to the calling app’s negotiated frame rate and repeats the latest frame during brief phone or connection dips. A calling app that requests a landscape frame will see a portrait feed centered with black bars.
+The default is **1080p at 30 FPS**. Select **60 FPS** for up to **1080p at 60 FPS** on a supported phone and connection. The preview shows incoming FPS. The Windows virtual camera paces samples to the calling app’s negotiated frame rate and repeats the latest frame during brief phone or connection dips. A calling app that requests a landscape frame will see a portrait feed centered with black bars.
 
 ## Phone companions
 

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080d15">
-  <meta name="description" content="Turn your iPhone or Android into a Windows 11 webcam. Connect over Wi-Fi or USB and select PocketCam in Discord and other camera apps.">
+  <meta name="theme-color" content="#080a15">
+  <meta name="description" content="PocketCam is free. Turn your iPhone or Android into a Windows 11 webcam over Wi-Fi or USB, with video up to 1080p at 60 FPS.">
   <meta property="og:title" content="PocketCam · Your phone is your webcam">
-  <meta property="og:description" content="Use your iPhone or Android camera in Discord and other Windows apps over Wi-Fi or USB.">
+  <meta property="og:description" content="A free phone webcam for Windows. Connect over Wi-Fi or USB and capture up to 1080p at 60 FPS.">
   <meta property="og:image" content="https://iamo3.github.io/PocketCam/media/pocketcam-banner.png">
   <link rel="icon" href="media/pocketcam.png">
   <link rel="apple-touch-icon" href="media/pocketcam.png">
@@ -31,33 +31,40 @@
     <div class="wrap masthead-inner">
       <a class="brand" href="./"><img src="media/pocketcam.png" width="36" height="36" alt="">PocketCam</a>
       <nav aria-label="Main navigation">
-        <a href="#setup">Setup</a>
+        <a class="nav-preview" href="#preview">Preview</a>
+        <a class="nav-setup" href="#setup">Setup</a>
         <a href="#downloads">Downloads</a>
         <a class="source-link" href="https://github.com/iaMO3/PocketCam"><svg class="icon" aria-hidden="true"><use href="#github"/></svg> GitHub</a>
       </nav>
     </div>
   </header>
   <main id="main">
-    <section class="hero wrap" aria-labelledby="title">
-      <div class="hero-copy">
-        <p class="platform"><img src="media/pocketcam.png" width="48" height="48" alt=""><span>Windows 11 <span aria-hidden="true">/</span> iPhone &amp; Android</span></p>
-        <h1 id="title">Your phone.<br><span>Your webcam.</span></h1>
-        <p class="lead">Use the camera you already own in Discord, Zoom, and other Windows apps. Connect your phone over Wi-Fi or USB.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4.2-Setup.exe"><svg class="icon" aria-hidden="true"><use href="#download"/></svg> Download for Windows</a>
-          <a class="button secondary" href="#downloads">Get the phone app <svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></a>
+    <section class="hero-stage" aria-labelledby="title">
+      <div class="hero wrap">
+        <div class="hero-copy">
+          <p class="platform"><strong class="free-mark">Free to use</strong><span>Windows 11 · iPhone &amp; Android</span></p>
+          <h1 id="title">Your phone.<br><span>Your webcam.</span></h1>
+          <p class="lead">Turn your phone into a webcam for Discord, Zoom, and other Windows apps. Pair over Wi-Fi or plug in with USB.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/iaMO3/PocketCam/releases/download/v2.4.2/PocketCam-2.4.2-Setup.exe"><svg class="icon" aria-hidden="true"><use href="#download"/></svg> Download for Windows</a>
+            <a class="button secondary" href="#downloads">Get the phone app <svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></a>
+          </div>
         </div>
+        <figure class="hero-art">
+          <div class="hero-photo">
+            <img src="media/pocketcam-webcam-setup.webp" width="1448" height="1086" alt="A man on a video call using a phone clipped above his monitor as his webcam." fetchpriority="high">
+            <span class="viewfinder" aria-hidden="true"></span>
+          </div>
+          <figcaption><span><svg class="icon" aria-hidden="true"><use href="#camera"/></svg> Phone camera</span><svg class="icon link-arrow" aria-hidden="true"><use href="#arrow"/></svg><span><svg class="icon" aria-hidden="true"><use href="#monitor"/></svg> Windows webcam</span></figcaption>
+        </figure>
       </div>
-      <figure class="hero-art">
-        <img src="media/pocketcam-webcam-setup.webp" width="1448" height="1086" alt="A man on a video call using a phone clipped above his monitor as his webcam." fetchpriority="high">
-      </figure>
     </section>
 
     <div class="capabilities wrap" aria-label="Camera features">
       <article>
         <span class="capability-icon teal"><svg class="icon" aria-hidden="true"><use href="#frame"/></svg></span>
-        <h2>Up to 1080p</h2>
-        <p>Pick your lens, then let the frame follow your phone or lock it to portrait or landscape.</p>
+        <h2>Up to 1080p at 60 FPS</h2>
+        <p>Actual frame rate depends on your phone, connection, and calling app.</p>
       </article>
       <article>
         <span class="capability-icon blue"><svg class="icon" aria-hidden="true"><use href="#wifi"/></svg></span>
@@ -71,10 +78,30 @@
       </article>
     </div>
 
+    <section class="wrap section preview" id="preview" aria-labelledby="preview-title">
+      <div class="section-head">
+        <h2 id="preview-title">Frame it your way.</h2>
+        <p>Choose a lens and follow your phone’s rotation, or set the frame to portrait or landscape. Try the two orientations below.</p>
+      </div>
+      <div class="preview-console">
+        <fieldset class="orientation">
+          <legend>Camera orientation</legend>
+          <div class="orientation-options">
+            <label><input name="orientation" type="radio" value="landscape" checked><span class="orientation-shape landscape" aria-hidden="true"></span> Landscape</label>
+            <label><input name="orientation" type="radio" value="portrait"><span class="orientation-shape portrait" aria-hidden="true"></span> Portrait</label>
+          </div>
+        </fieldset>
+        <figure class="sample" aria-label="Sample camera framing">
+          <div class="sample-frame"><img src="media/pocketcam-webcam-setup.webp" width="1448" height="1086" alt="Sample image of a phone mounted above a computer monitor during a call." loading="lazy"></div>
+          <figcaption><span>Sample frame</span><span class="landscape-size">16∶9</span><span class="portrait-size">9∶16</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="wrap section" id="downloads" aria-labelledby="downloads-title">
       <div class="section-head">
         <h2 id="downloads-title">Get PocketCam</h2>
-        <p>Install the Windows app, then choose a companion for your phone or scan the QR code to use its browser.</p>
+        <p>Every PocketCam download is free. Install the Windows app, then choose a phone companion or pair from your phone’s browser.</p>
       </div>
       <div class="download-grid">
         <article class="download-card windows">
