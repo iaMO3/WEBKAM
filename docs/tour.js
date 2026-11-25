@@ -136,6 +136,40 @@ desktopDemo.querySelector(".demo-rotate").addEventListener("click", () => {
 const phoneDemo = document.querySelector('[data-demo="phone"]');
 const phoneStatus = phoneDemo.querySelector(".demo-signal");
 const phoneButton = phoneDemo.querySelector(".demo-stream");
+const cameraDemos = [desktopDemo, phoneDemo];
+let facing = "rear";
+let lightOn = false;
+
+function renderLighting() {
+  for (const demo of cameraDemos) {
+    demo.querySelector(`.demo-light-controls input[value="${facing}"]`).checked = true;
+    const button = demo.querySelector(".demo-light");
+    button.disabled = phoneDemo.dataset.state === "idle";
+    button.setAttribute("aria-pressed", String(lightOn));
+    button.querySelector(".demo-light-label").textContent = facing === "rear" ? "Flash" : "Screen light";
+    button.querySelector(".demo-light-state").textContent = lightOn ? "On" : "Off";
+    demo.dataset.light = lightOn ? facing : "off";
+  }
+}
+
+for (const demo of cameraDemos) {
+  const controls = demo.querySelector(".demo-light-controls");
+  controls.append(document.querySelector("#demo-light-controls").content.cloneNode(true));
+  controls.querySelectorAll("input").forEach(input => {
+    input.name = `demo-camera-${demo.dataset.demo}`;
+    input.addEventListener("change", () => {
+      facing = input.value;
+      lightOn = false;
+      renderLighting();
+    });
+  });
+  controls.querySelector(".demo-light").addEventListener("click", () => {
+    lightOn = !lightOn;
+    renderLighting();
+  });
+}
+renderLighting();
+
 function updatePhoneLens() {
   const lens = phoneDemo.querySelector('[name="demo-lens"]:checked').value;
   phoneDemo.style.setProperty("--demo-zoom", lens);
@@ -148,6 +182,8 @@ phoneButton.addEventListener("click", () => {
   phoneStatus.textContent = running ? "Preview" : "Stopped";
   phoneDemo.querySelector(".demo-phone-idle").hidden = running;
   phoneButton.textContent = running ? "Stop sample" : "Start sample";
+  lightOn = false;
+  renderLighting();
 });
 
 const pairingDemo = document.querySelector('[data-demo="pairing"]');

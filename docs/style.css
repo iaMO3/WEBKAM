@@ -1475,6 +1475,19 @@ body {
   --demo-zoom: 1.35;
 }
 .demo-handset .demo-image { height: 100%; width: 100%; object-fit: cover; }
+.demo-light-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+.demo-light .icon { width: 16px; height: 16px; }
+.demo-light-state { padding-left: 6px; border-left: 1px solid currentColor; }
+.demo-light[aria-pressed="true"] { color: #302715; background: #ffdd92; border-color: #ffdd92; }
+.demo-light:disabled { opacity: .55; cursor: default; }
+[data-light="rear"] .demo-sensor { filter: brightness(1.20) saturate(1.08); }
+.demo-console[data-light="front"] .demo-sensor { filter: brightness(1.10); }
+.demo-handset[data-light="front"] { background: #faf9f4; color: #202622; border-color: #c9cdc4; }
+.demo-handset[data-light="front"] :is(.demo-signal, legend) { color: #414a43; }
+.demo-handset[data-light="front"] .demo-viewport { background: #faf9f4; }
+.demo-handset[data-light="front"] .demo-sensor { width: 78%; height: 78%; border-radius: 8px; }
+.demo-handset[data-light="front"] :focus-visible + span,
+.demo-handset[data-light="front"] .demo-button:focus-visible { outline-color: #276349; }
 .demo-handset[data-state="idle"] .demo-sensor { visibility: hidden; }
 .demo-phone-idle { position: absolute; color: #dad8e4; font-size: 14px; }
 .demo-stream, .demo-connect { width: 100%; background: #33483f; border-color: #6f9b82; }
