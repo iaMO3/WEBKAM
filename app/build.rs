@@ -4,6 +4,25 @@ fn main() {
     println!("cargo:rerun-if-changed=pocketcam.rc");
     println!("cargo:rerun-if-changed=../assets/pocketcam-app.ico");
     println!("cargo:rerun-if-env-changed=WINDRES");
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
+        println!("cargo:rerun-if-changed=../macos/camera.m");
+        cc::Build::new()
+            .file("../macos/camera.m")
+            .flag("-fobjc-arc")
+            .compile("webkam_mac");
+        for framework in [
+            "Foundation",
+            "AppKit",
+            "CoreFoundation",
+            "CoreMediaIO",
+            "CoreMedia",
+            "CoreVideo",
+            "VideoToolbox",
+        ] {
+            println!("cargo:rustc-link-lib=framework={framework}");
+        }
+        return;
+    }
     if env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("windows") {
         return;
     }

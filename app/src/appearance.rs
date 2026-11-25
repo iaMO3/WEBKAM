@@ -1,7 +1,10 @@
 use eframe::egui::{self, Color32, Stroke};
-use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+use raw_window_handle::HasWindowHandle;
+#[cfg(windows)]
+use raw_window_handle::RawWindowHandle;
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
+#[cfg(windows)]
 use windows::Win32::{Foundation::HWND, Graphics::Dwm::*};
 
 #[derive(Clone, Copy, Default, Deserialize, Serialize, PartialEq)]
@@ -120,6 +123,7 @@ pub fn install(ctx: &egui::Context) {
 }
 
 // Only color the native caption. Windows retains its drag, snap and caption buttons.
+#[cfg(windows)]
 pub fn title_bar(window: &impl HasWindowHandle, dark: bool) {
     let Ok(handle) = window.window_handle() else {
         return;
@@ -141,6 +145,15 @@ pub fn title_bar(window: &impl HasWindowHandle, dark: bool) {
     }
 }
 
+#[cfg(target_os = "macos")]
+pub fn title_bar(_: &impl HasWindowHandle, _: bool) {}
+
+#[cfg(target_os = "macos")]
+pub fn motion_enabled() -> bool {
+    crate::mac_camera::motion_enabled()
+}
+
+#[cfg(windows)]
 pub fn motion_enabled() -> bool {
     use windows::Win32::UI::WindowsAndMessaging::{
         SPI_GETCLIENTAREAANIMATION, SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS, SystemParametersInfoW,

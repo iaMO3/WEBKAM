@@ -1,7 +1,10 @@
 use crate::shared::*;
 use axum::body::Bytes;
+#[cfg(windows)]
 use std::{io, sync::Arc, time::Duration};
+#[cfg(windows)]
 use tokio::{io::AsyncWriteExt, net::windows::named_pipe::ServerOptions, sync::watch};
+#[cfg(windows)]
 use windows::{
     Win32::{
         Foundation::{HLOCAL, LocalFree},
@@ -20,7 +23,7 @@ pub struct Frame {
     pub size: Size,
     pub preview_size: Size,
     pub preview: Vec<u8>,
-    wire: Vec<u8>,
+    pub(crate) wire: Vec<u8>,
 }
 
 pub fn decode(
@@ -88,6 +91,7 @@ pub fn decode(
     })
 }
 
+#[cfg(windows)]
 fn new_pipe(first: bool) -> io::Result<tokio::net::windows::named_pipe::NamedPipeServer> {
     // The camera runs under Local Service. Other users receive no pipe access.
     unsafe {
@@ -120,6 +124,7 @@ fn new_pipe(first: bool) -> io::Result<tokio::net::windows::named_pipe::NamedPip
     }
 }
 
+#[cfg(windows)]
 pub fn serve(frames: watch::Receiver<Option<Arc<Frame>>>) -> io::Result<()> {
     let mut listener = new_pipe(true)?;
     tokio::spawn(async move {

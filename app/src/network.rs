@@ -33,12 +33,16 @@ pub enum Connection {
 }
 
 impl Connection {
+    #[cfg(windows)]
     pub const ALL: [Self; 4] = [
         Self::Network,
         Self::IphoneUsb,
         Self::AndroidTether,
         Self::AndroidAdb,
     ];
+    #[cfg(target_os = "macos")]
+    pub const ALL: [Self; 3] = [Self::Network, Self::IphoneUsb, Self::AndroidAdb];
+
     pub fn label(self) -> &'static str {
         match self {
             Self::Network => "Wi-Fi / Ethernet",
@@ -49,8 +53,13 @@ impl Connection {
     }
     pub fn instructions(self) -> &'static str {
         match self {
-            Self::Network => "Connect your phone and PC to the same trusted network.",
+            Self::Network => "Connect your phone and computer to the same trusted network.",
             Self::IphoneUsb => {
+                #[cfg(target_os = "macos")]
+                {
+                    return "Connect your iPhone by USB, trust this Mac and enable Personal Hotspot. Select the iPhone adapter below.";
+                }
+                #[cfg(windows)]
                 "Plug in your iPhone, tap Trust and turn on Personal Hotspot. WEBKAM Setup can install Apple USB support."
             }
             Self::AndroidTether => {
@@ -103,7 +112,7 @@ pub fn adapters() -> Vec<Adapter> {
         "bluetooth",
         "vmware",
     ];
-    let mut result = windows_adapters();
+    let mut result = platform_adapters();
     result.retain(|adapter| {
         let name = format!("{} {}", adapter.name, adapter.description).to_lowercase();
         adapter.ip.is_private() && !ignored.iter().any(|term| name.contains(term))
@@ -127,7 +136,8 @@ pub fn adapters() -> Vec<Adapter> {
     result
 }
 
-fn windows_adapters() -> Vec<Adapter> {
+#[cfg(windows)]
+fn platform_adapters() -> Vec<Adapter> {
     use windows::Win32::{
         Foundation::ERROR_BUFFER_OVERFLOW,
         NetworkManagement::{IpHelper::*, Ndis::IfOperStatusUp},
@@ -321,6 +331,58 @@ pub async fn loopback(app: App) -> Result<Link> {
     })
 }
 
+#[cfg(target_os = "macos")]
+fn platform_adapters() -> Vec<Adapter> {
+    let Ok(output) = std::process::Command::new("/sbin/ifconfig")
+        .arg("-a")
+        .output()
+    else {
+        return Vec::new();
+    };
+    let mut adapters = Vec::new();
+    let mut name = "";
+    let listing = String::from_utf8_lossy(&output.stdout);
+    for line in listing.lines() {
+        if !line.starts_with(char::is_whitespace) {
+            name = line.split(':').next().unwrap_or("");
+        } else if let Some(address) = line.trim().strip_prefix("inet ")
+            && let Some(ip) = address
+                .split_whitespace()
+                .next()
+                .and_then(|v| v.parse().ok())
+        {
+            adapters.push(Adapter {
+                name: name.into(),
+                description: String::new(),
+                ip,
+            });
+        }
+    }
+    adapters
+}
+
+#[cfg(target_os = "macos")]
+fn adb_path() -> std::path::PathBuf {
+    if let Some(path) = env::var_os("POCKETCAM_ADB") {
+        return path.into();
+    }
+    [
+        env::var_os("ANDROID_HOME")
+            .map(std::path::PathBuf::from)
+            .map(|d| d.join("platform-tools/adb")),
+        env::var_os("HOME")
+            .map(std::path::PathBuf::from)
+            .map(|d| d.join("Library/Android/sdk/platform-tools/adb")),
+        Some("/opt/homebrew/bin/adb".into()),
+        Some("/usr/local/bin/adb".into()),
+    ]
+    .into_iter()
+    .flatten()
+    .find(|p| p.is_file())
+    .unwrap_or_else(|| "adb".into())
+}
+
+#[cfg(windows)]
 fn adb_path() -> std::path::PathBuf {
     if let Some(override_path) = env::var_os("POCKETCAM_ADB") {
         return override_path.into();
@@ -349,18 +411,20 @@ fn adb_path() -> std::path::PathBuf {
 }
 
 async fn adb(args: &[&str]) -> Result<String> {
+    let mut command = tokio::process::Command::new(adb_path());
+    #[cfg(windows)]
+    command.creation_flags(0x08000000);
     let output = tokio::time::timeout(
         Duration::from_secs(8),
-        tokio::process::Command::new(adb_path())
+        command
             .args(["-d", "reverse"])
             .args(args)
-            .creation_flags(0x08000000)
             .kill_on_drop(true)
             .output(),
     )
     .await
     .context("ADB timed out. Check the USB debugging prompt on the phone.")?
-    .context("ADB could not start. Run WEBKAM Setup and select Android USB support.")?;
+    .context("ADB could not start. Install Android Platform-Tools for your computer.")?;
     if !output.status.success() {
         let detail = String::from_utf8_lossy(&output.stderr);
         bail!("ADB: {}", detail.trim());
@@ -384,10 +448,15 @@ pub async fn connect_adb() -> Result<AdbForward> {
 pub struct AdbForward;
 impl Drop for AdbForward {
     fn drop(&mut self) {
-        use std::{os::windows::process::CommandExt, process::Stdio};
-        let _ = std::process::Command::new(adb_path())
+        use std::process::Stdio;
+        let mut command = std::process::Command::new(adb_path());
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            command.creation_flags(0x08000000);
+        }
+        let _ = command
             .args(["-d", "reverse", "--remove", &format!("tcp:{ADB_PORT}")])
-            .creation_flags(0x08000000)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null())

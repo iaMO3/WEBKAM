@@ -1,0 +1,15 @@
+WEBKAM for Mac
+macOS 13 Ventura or later · Apple silicon and Intel
+
+1. Drag WEBKAM to Applications and open it.
+2. Open the VirtualCamera4Mac disk image included here. Drag VirtualCamera4Mac to Applications.
+3. Open VirtualCamera4Mac from Applications, activate the extension, and approve it in System Settings when prompted.
+4. Connect the phone and Mac to the same Wi-Fi network. In WEBKAM, scan the QR code with your phone and follow the pairing screen.
+5. Keep WEBKAM open and select VirtualCamera4Mac as the video device in Discord, Zoom, or another calling app.
+
+The virtual camera supports up to 1080p at 30 FPS. Each calling app chooses the output mode.
+
+If macOS blocks WEBKAM on first launch because it is not notarized, open System Settings > Privacy & Security and use Open Anyway for WEBKAM after confirming you downloaded it from the project’s GitHub release. The bundled VirtualCamera4Mac disk image is the developer’s original download.
+
+https://github.com/iaMO3/WEBKAM
+https://github.com/m96-chan/VirtualCamera4Mac/releases/tag/v0.0.7

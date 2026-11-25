@@ -72,8 +72,7 @@ pub fn show(
     camera: mpsc::Receiver<Result<(), String>>,
 ) -> Result<()> {
     let icon = Arc::new(
-        eframe::icon_data::from_png_bytes(crate::web::ICON_192)
-            .context("Read the WEBKAM icon")?,
+        eframe::icon_data::from_png_bytes(crate::web::ICON_192).context("Read the WEBKAM icon")?,
     );
     let options = eframe::NativeOptions {
         viewport: ViewportBuilder::default()
@@ -424,7 +423,11 @@ impl Desktop {
                 );
                 segment_group(
                     ui,
-                    "Frame rate",
+                    if cfg!(target_os = "macos") {
+                        "Phone FPS"
+                    } else {
+                        "Frame rate"
+                    },
                     &mut self.settings.fps,
                     [(30, "30 FPS"), (60, "60 FPS")],
                     62.0,
@@ -609,30 +612,42 @@ impl Desktop {
         match &self.camera_status {
             Some(Ok(())) => {
                 ui.label(
-                    RichText::new("Windows camera ready")
-                        .size(12.0)
-                        .color(palette(ui.visuals().dark_mode).green),
+                    RichText::new(if cfg!(target_os = "macos") {
+                        "Mac camera ready"
+                    } else {
+                        "Windows camera ready"
+                    })
+                    .size(12.0)
+                    .color(palette(ui.visuals().dark_mode).green),
                 )
-                .on_hover_text(
-                    "Select WEBKAM (Windows Virtual Camera) in Discord or your video app.",
-                );
+                .on_hover_text(if cfg!(target_os = "macos") {
+                    "Select VirtualCamera4Mac in your calling app. Camera output runs at 30 FPS."
+                } else {
+                    "Select WEBKAM (Windows Virtual Camera) in Discord or your video app."
+                });
             }
             Some(Err(error)) => {
-                let hint = if error.contains("80040154") {
+                let hint = if cfg!(target_os = "macos") {
+                    "Open VirtualCamera4Mac from Applications and activate its camera extension."
+                } else if error.contains("80040154") {
                     "Run Install WEBKAM to enable the virtual camera."
                 } else {
                     "Windows couldn’t start the virtual camera. Check Camera privacy settings."
                 };
                 ui.label(
-                    RichText::new("Camera setup needed")
-                        .size(12.0)
-                        .color(palette(ui.visuals().dark_mode).warning),
+                    RichText::new(if cfg!(target_os = "macos") {
+                        "Activate VirtualCamera4Mac"
+                    } else {
+                        "Camera setup needed"
+                    })
+                    .size(12.0)
+                    .color(palette(ui.visuals().dark_mode).warning),
                 )
                 .on_hover_text(format!("{hint}\n{error}"));
             }
             None => {
                 ui.label(
-                    RichText::new("Starting Windows camera…")
+                    RichText::new("Starting virtual camera…")
                         .small()
                         .color(palette(ui.visuals().dark_mode).muted),
                 );
@@ -651,8 +666,8 @@ impl eframe::App for Desktop {
                 appearance::apply_motion(ctx, enabled);
             }
         }
-        if self.camera_status.is_none() {
-            self.camera_status = self.camera.try_recv().ok();
+        for result in self.camera.try_iter() {
+            self.camera_status = Some(result);
         }
         if self.adb_pending.is_some() {
             match self.adb_pending.as_mut().unwrap().try_recv() {
@@ -899,8 +914,7 @@ mod tests {
         let mut mode = Appearance::System;
         let choices =
             [Appearance::System, Appearance::Light, Appearance::Dark].map(|m| (m, m.label()));
-        let directory =
-            std::env::temp_dir().join(format!("WEBKAM-theme-{}", uuid::Uuid::new_v4()));
+        let directory = std::env::temp_dir().join(format!("WEBKAM-theme-{}", uuid::Uuid::new_v4()));
         for target in [Appearance::Light, Appearance::Dark, Appearance::System] {
             let mut draw = |events| {
                 ctx.run_ui(

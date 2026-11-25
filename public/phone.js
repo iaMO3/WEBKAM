@@ -416,7 +416,7 @@ function sendFrames(current, connection) {
           connection.readyState !== WebSocket.OPEN || connection.bufferedAmount > 750000) return;
       connection.send(jpeg);
       if (connectionChip.dataset.state !== 'live') {
-        message('Live on your Windows PC.', 'live');
+        message('Live on your computer.', 'live');
       }
     }, 'image/jpeg', jpegQuality);
   }

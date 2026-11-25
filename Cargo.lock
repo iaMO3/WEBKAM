@@ -2110,6 +2110,7 @@ dependencies = [
  "axum",
  "axum-server",
  "base64 0.23.1",
+ "cc",
  "eframe",
  "pem",
  "qrcode",

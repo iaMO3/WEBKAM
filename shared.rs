@@ -1,4 +1,6 @@
+#[cfg(windows)]
 pub const PIPE_NAME: &str = r"\\.\pipe\PocketCam.Frames.2.659F03EB";
+#[cfg(windows)]
 pub const SOURCE_CLSID: windows::core::GUID =
     windows::core::GUID::from_u128(0x659f03eb_0bae_4d0a_972e_8b6a6f323807);
 

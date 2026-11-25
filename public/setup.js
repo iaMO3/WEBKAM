@@ -44,10 +44,10 @@ async function connect() {
   openCamera.textContent = 'Retry connection';
   if (isAndroid) {
     android.open = true;
-    message.textContent = 'Keep WEBKAM open on Windows and install this PC’s certificate as a CA certificate on Android, then retry.';
+    message.textContent = 'Keep WEBKAM open on your computer and install this PC’s certificate as a CA certificate on Android, then retry.';
   } else {
     iphone.open = true;
-    message.textContent = 'Keep WEBKAM open on Windows, turn on full trust for ' + certificate + ', then tap Retry connection.';
+    message.textContent = 'Keep WEBKAM open on your computer, turn on full trust for ' + certificate + ', then tap Retry connection.';
   }
 }
 
