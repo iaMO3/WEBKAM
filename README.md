@@ -32,7 +32,7 @@ These screens show an example session. Select a screenshot for the full image, o
 ## Install and pair
 
 1. **Open the Windows receiver.** Run the Windows x64 installer. Select the USB components you need during setup and choose your connection in WEBKAM.
-2. **Connect the phone.** Scan the QR code with your phone’s camera for browser setup, or type the PC address into the companion. Follow the certificate setup when prompted, enter the eight-digit code displayed on your PC, and tap **Start camera**.
+2. **Connect the phone.** Scan the QR code with your phone’s camera for browser setup, or type the PC address into the companion. On iPhone, open the setup link in Safari to download the profile. Follow the certificate setup when prompted, enter the eight-digit code displayed on your PC, and tap **Start camera**.
 3. **Choose WEBKAM in your call.** In Discord, open **User Settings → Voice & Video → Camera**. Select **WEBKAM (Windows Virtual Camera)** and choose a microphone separately. Keep the receiver open during the call.
 
 <details>
@@ -50,7 +50,7 @@ If another phone session is paired, click **Disconnect** in the Windows app to g
 
 1. Download the [universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3-mac.1/WEBKAM-2.4.3-macOS-universal.dmg) for macOS 13 Ventura or later. It covers Intel and Apple silicon MacBooks and desktop Macs.
 2. Open the DMG and drag **WEBKAM** to **Applications**. Open the included **VirtualCamera4Mac** disk image and copy that app to **Applications** too. Open VirtualCamera4Mac, select **Install / Activate**, and approve the camera extension in System Settings.
-3. Open WEBKAM, connect your phone to the same Wi-Fi network and scan the QR code. Follow the phone setup page, then enter the eight-digit pairing code and tap **Start camera**.
+3. Open WEBKAM, connect your phone to the same Wi-Fi network and scan the QR code. Open the link in Safari on iPhone to download the profile. Follow the phone setup page, then enter the eight-digit pairing code and tap **Start camera**.
 4. Select **VirtualCamera4Mac** as the camera in your calling app. Keep the WEBKAM receiver open during the call.
 
 The macOS receiver is an early build and uses an ad-hoc signature. See the [macOS release notes](https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3-mac.1) for installation details and checksums.
