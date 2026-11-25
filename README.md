@@ -2,7 +2,7 @@
 
 # WEBKAM
 
-Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. WEBKAM is free on all three platforms and supports **up to 1080p at 60 FPS**. The Windows receiver runs as a native Rust app. In Discord or your recording software, select **WEBKAM (Windows Virtual Camera)**.
+Use your iPhone or Android as a webcam over Wi-Fi or supported USB connections. WEBKAM is free and the desktop receiver runs natively in Rust. Windows 11 supports up to **1080p at 60 FPS**. The macOS preview release supports up to **1080p at 30 FPS** through the bundled VirtualCamera4Mac extension.
 
 <p align="center">
   <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3"><img src="docs/media/action-download.svg" alt="Downloads"></a>
@@ -46,6 +46,15 @@ If another phone session is paired, click **Disconnect** in the Windows app to g
 
 </details>
 
+### Install on a Mac
+
+1. Download the [universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3-mac.1/WEBKAM-2.4.3-macOS-universal.dmg) for macOS 13 Ventura or later. It covers Intel and Apple silicon MacBooks and desktop Macs.
+2. Open the DMG and drag **WEBKAM** to **Applications**. Open the included **VirtualCamera4Mac** disk image and copy that app to **Applications** too. Open VirtualCamera4Mac, select **Install / Activate**, and approve the camera extension in System Settings.
+3. Open WEBKAM, connect your phone to the same Wi-Fi network and scan the QR code. Follow the phone setup page, then enter the eight-digit pairing code and tap **Start camera**.
+4. Select **VirtualCamera4Mac** as the camera in your calling app. Keep the WEBKAM receiver open during the call.
+
+The macOS receiver is an early build and uses an ad-hoc signature. See the [macOS release notes](https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3-mac.1) for installation details and checksums.
+
 ## Downloads
 
 All WEBKAM downloads are free. For browser capture, scan the desktop QR code in Safari or Chrome and keep the phone page open while streaming.
@@ -53,6 +62,7 @@ All WEBKAM downloads are free. For browser capture, scan the desktop QR code in 
 | Platform | Download | Requirements |
 | --- | --- | --- |
 | Windows | [WEBKAM 2.4.3 Setup](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
+| macOS | [WEBKAM 2.4.3 Universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3-mac.1/WEBKAM-2.4.3-macOS-universal.dmg) | macOS 13 or later. Intel and Apple silicon. Preview release with bundled camera extension. |
 | Android | [WEBKAM 2.4.1 APK](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk) | Android 8 or later. Signed APK. |
 | iPhone | [WEBKAM PiP 2.6.1 IPA](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
 
@@ -132,5 +142,14 @@ The build places `pocketcam.exe` and `pocketcam_camera.dll` in `target/release`.
 The receiver accepts frames over a single WebSocket connection and drops queued frames when decoding falls behind. It sends NV12 through an access-controlled Windows pipe to the Media Foundation camera. The app stores pairing settings locally and keeps video frames in memory.
 
 Build the single Windows installer with **scripts/Build-Setup.ps1** and NSIS 3. Build the Android APK with PowerShell 7 and **scripts/Build-Android.ps1** using a JDK 17 directory, the Android 35 platform jar, and Android Build Tools 35.0.0. Keep the signing directory supplied to the build for future Android updates. To rebuild the unsigned iPhone IPA on macOS, run **sh scripts/Build-iOS.sh** with the iPhoneOS 18 SDK or newer.
+
+For the macOS DMG, install the Xcode command line tools and run:
+
+```sh
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+bash scripts/Build-macOS.sh
+```
+
+The build adds the original [VirtualCamera4Mac distribution](https://github.com/m96-chan/VirtualCamera4Mac/tree/v0.0.7) for the macOS virtual camera. The extension requires one-time approval in System Settings. The DMG supports Wi-Fi or Ethernet, iPhone USB with Personal Hotspot, and Android USB through ADB with Android Platform-Tools installed.
 
 The product website is in [docs](docs/). See [third-party notices](THIRD-PARTY-NOTICES.txt) for bundled components.
