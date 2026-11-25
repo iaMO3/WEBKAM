@@ -40,7 +40,7 @@ These screens show an example session. Select a screenshot for the full image, o
 
 [![Windows pairing screen in light mode with example connection details](docs/media/pairing.webp)](docs/media/pairing.webp)
 
-Use the QR code displayed on your own PC. On iPhone, install the **WEBKAM** profile from the setup page and enable full trust for **the certificate shown in the Windows receiver** under **Settings → General → About → Certificate Trust Settings**. The profile adds the web app to your Home Screen. iOS shows **Not Signed** for the locally generated profile.
+Use the QR code displayed on your own PC. On iPhone, **Safari is required to download the WEBKAM profile**. Open the setup link in Safari, download and install the profile, and enable full trust for **the certificate shown in the Windows receiver** under **Settings → General → About → Certificate Trust Settings**. The profile adds the web app to your Home Screen. iOS shows **Not Signed** for the locally generated profile.
 
 If another phone session is paired, click **Disconnect** in the Windows app to get a new code. Restart Discord if it was open during installation and its camera list needs refreshing.
 
@@ -87,7 +87,7 @@ The Windows preview reports incoming FPS. The virtual camera paces output to the
 
 ### Install WEBKAM on the iPhone Home Screen
 
-1. Scan the Windows QR code in Safari and tap **Download WEBKAM profile**. Match the certificate name shown on the PC.
+1. Scan the QR code shown in WEBKAM on your computer. **Open the setup link in Safari** on your iPhone. Safari is required to download the profile. Match the certificate name shown on your computer, tap **Download WEBKAM profile**, then tap **Allow**.
 2. Install the profile in **Settings → Profile Downloaded**. The profile adds the WEBKAM Home Screen icon and your PC’s certificate.
 3. Enable full trust for **the certificate shown in the Windows receiver** in **Settings → General → About → Certificate Trust Settings**.
 4. Open the WEBKAM icon and enter the pairing code from Windows. If an earlier session is still paired, click **Disconnect** on Windows first.
@@ -103,7 +103,7 @@ The Home Screen app opens at the saved PC address. If that address changes, scan
 
 - **Android 8 or later**. Open **WEBKAM-2.4.1-Android.apk** on the phone and approve installation for the app that opened the file. The APK is signed with a local release key.
 - **iPhone, iOS 18 or later**. **WEBKAM-2.6.1-iPhone-unsigned.ipa** contains the arm64 companion and requires personal signing. In AltStore Classic, open **My Apps**, tap **+**, and choose the IPA. On Windows, keep WEBKAM open and click **Disconnect** if the browser version is still paired, then enter the new pairing code in **WEBKAM**.
-- Open WEBKAM on the phone and enter the PC address shown under the Windows QR code. On a first Wi-Fi or USB tether connection, tap **First-time certificate setup**, complete the certificate instructions in the system browser, then return to the app and tap **Open camera**. Enter the PC pairing code and allow camera access. On Android ADB, click **Connect Android USB** on Windows and choose **Use Android USB (ADB)** in the phone app.
+- Open WEBKAM on the phone and enter the PC address shown under the Windows QR code. On a first Wi-Fi or USB tether connection, tap **First-time certificate setup**, complete the certificate instructions in **Safari on iPhone** or **Chrome on Android**, then return to the app and tap **Open camera**. Enter the PC pairing code and allow camera access. On Android ADB, click **Connect Android USB** on Windows and choose **Use Android USB (ADB)** in the phone app.
 - Use **Connection** in the phone companion to change PCs. Scanning the desktop QR code with the phone's system camera still opens the browser workflow.
 
 </details>
