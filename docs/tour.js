@@ -134,6 +134,19 @@ desktopDemo.querySelector(".demo-rotate").addEventListener("click", () => {
 });
 
 const phoneDemo = document.querySelector('[data-demo="phone"]');
+const replayImage = document.querySelector("#lighting-clip");
+const replayButton = document.querySelector(".lighting-replay button");
+const replayStill = replayImage.getAttribute("src");
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+function setReplay(playing) {
+  replayImage.src = playing ? replayImage.dataset.animation : replayStill;
+  replayButton.textContent = playing ? "Stop animation" : "Play animation";
+}
+setReplay(!motionPreference.matches);
+replayButton.hidden = false;
+replayButton.addEventListener("click", () => setReplay(replayImage.getAttribute("src") === replayStill));
+motionPreference.addEventListener("change", () => setReplay(!motionPreference.matches));
+
 const phoneStatus = phoneDemo.querySelector(".demo-signal");
 const phoneButton = phoneDemo.querySelector(".demo-stream");
 const cameraDemos = [desktopDemo, phoneDemo];
