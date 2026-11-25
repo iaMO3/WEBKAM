@@ -35,12 +35,26 @@
       </div>
       <div class="camera-controls">
         <p id="native-mode" class="camera-hint" hidden></p>
+        <fieldset class="shot-control">
+          <legend>Framing</legend>
+          <button class="secondary" type="button" data-zoom="1" aria-pressed="true">Wide</button>
+          <button class="secondary" type="button" data-zoom="1.35" aria-pressed="false">Standard</button>
+          <button class="secondary" type="button" data-zoom="2.2" aria-pressed="false">Close</button>
+        </fieldset>
+        <fieldset class="shot-control">
+          <legend>Camera</legend>
+          <button class="secondary" type="button" data-facing="environment" aria-pressed="true">Rear</button>
+          <button class="secondary" type="button" data-facing="user" aria-pressed="false">Front</button>
+          <button id="camera-flash" class="secondary" type="button" aria-pressed="false" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13.5 2 4 14h7l-1 8 10-13h-7z"/></svg>
+            <span id="light-label">Flash</span><span id="light-state" aria-hidden="true">Off</span>
+          </button>
+        </fieldset>
         <div class="lens-control">
           <label for="camera-picker">Camera lens</label>
           <select id="camera-picker"></select>
         </div>
         <button id="toggle" class="primary" type="button">Start camera</button>
-        <button id="camera-flash" class="secondary" type="button" aria-pressed="false" hidden>Flash</button>
         <p id="flash-note" class="camera-hint" role="status" hidden></p>
         <button id="float-camera" class="secondary" type="button" hidden>Floating preview</button>
       </div>

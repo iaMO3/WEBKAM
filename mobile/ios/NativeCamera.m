@@ -43,6 +43,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     CMTime _lastFrame;
     NSUInteger _captureEpoch, _width, _height, _fps, _rotation;
     BOOL _followPhone, _announced;
+    CGFloat _requestedZoom;
 }
 @property (strong) PhoneLink *link;
 @property (strong) CameraInterface *cameraInterface;
@@ -56,6 +57,8 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
 @property (assign) BOOL videoLive;
 @property (assign) BOOL flashAvailable;
 @property (assign) BOOL flashOn;
+@property (assign) CGFloat currentZoom;
+@property (assign) CGFloat maxZoom;
 @property (assign) BOOL flashBusy;
 @property (copy) NSString *flashNote;
 @property (assign) BOOL checking;
@@ -79,6 +82,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         self.link = [[PhoneLink alloc] initWithHost:host];
         _captureQueue = dispatch_queue_create("app.pocketcam.capture", DISPATCH_QUEUE_SERIAL);
         _capture = [AVCaptureSession new];
+        _requestedZoom = self.currentZoom = 1;
         _orientation = AVCaptureVideoOrientationPortrait;
         // The app can be in the background during PiP, where iOS restricts GPU work.
         _imageContext = [CIContext contextWithOptions:@{kCIContextCacheIntermediates:@NO}];
@@ -136,7 +140,10 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         mediaType:AVMediaTypeVideo position:AVCaptureDevicePositionBack] ?: self.lenses.firstObject;
     NSMutableArray<NSDictionary *> *choices = [NSMutableArray array];
     for (AVCaptureDevice *lens in self.lenses) {
-        [choices addObject:@{@"name":lens.localizedName, @"id":lens.uniqueID}];
+        NSString *facing = lens.position == AVCaptureDevicePositionFront ? @"user" :
+            lens.position == AVCaptureDevicePositionBack ? @"environment" : @"";
+        [choices addObject:@{@"name":lens.localizedName, @"id":lens.uniqueID, @"facing":facing,
+                            @"standard":@([lens.deviceType isEqualToString:AVCaptureDeviceTypeBuiltInWideAngleCamera])}];
     }
     self.lensChoices = choices;
 }
@@ -153,6 +160,14 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
                 [self selectLens:lens];
                 break;
             }
+        }
+    } else if ([action isEqualToString:@"zoom"] && self.stream && self.cameraReady) {
+        NSNumber *factor = payload[@"factor"];
+        if ([@[@1, @1.35, @2.2] containsObject:factor]) {
+            dispatch_async(_captureQueue, ^{
+                self->_requestedZoom = factor.doubleValue;
+                [self applyFraming];
+            });
         }
     } else if ([action isEqualToString:@"camera"] && self.paired && self.lens) {
         [self toggleCamera];
@@ -198,6 +213,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         @"pipStarting":@(self.pipStarting), @"mode":self.modeText ?: @"",
         @"flashAvailable":@(self.stream && self.cameraReady && self.flashAvailable),
         @"screenLight":@(self.lens.position == AVCaptureDevicePositionFront),
+        @"zoom":@(self.currentZoom), @"maxZoom":@(self.maxZoom),
         @"flashOn":@(self.flashOn), @"flashBusy":@(self.flashBusy),
         @"flashNote":self.flashNote ?: @""
     }];
@@ -467,6 +483,25 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     return YES;
 }
 
+- (void)applyFraming {
+    AVCaptureDevice *device = _input.device;
+    if (!device) return;
+    CGFloat limit = device.maxAvailableVideoZoomFactor;
+    if ([device lockForConfiguration:NULL]) {
+        if (_requestedZoom > limit) _requestedZoom = 1;
+        device.videoZoomFactor = MAX(device.minAvailableVideoZoomFactor, MIN(_requestedZoom, limit));
+        [device unlockForConfiguration];
+    }
+    CGFloat actual = device.videoZoomFactor;
+    NSUInteger epoch = _captureEpoch;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.epoch != epoch || self.lens != device) return;
+        self.currentZoom = actual;
+        self.maxZoom = limit;
+        [self updateControls];
+    });
+}
+
 - (void)applyCaptureRate {
     AVCaptureDevice *device = _input.device;
     if (!device) return;
@@ -483,7 +518,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
             break;
         }
     }
-    if (!best) return;
+    if (!best) { [self applyFraming]; return; }
     [_capture beginConfiguration];
     if ([device lockForConfiguration:NULL]) {
         if (device.activeFormat != best) device.activeFormat = best;
@@ -493,6 +528,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         [device unlockForConfiguration];
     }
     [_capture commitConfiguration];
+    [self applyFraming];
     [self updateOrientation];
 }
 

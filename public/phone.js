@@ -29,6 +29,7 @@ let nativePip = false;
 let pendingPip = 0;
 let browserPipRejected = false;
 let flashOn = false;
+let framingZoom = 1;
 let flashBusy = false;
 let cameraSettings = Promise.resolve();
 
@@ -61,6 +62,7 @@ function showPairing() {
 function showCamera() {
   form.hidden = true;
   panel.hidden = false;
+  updateButtons();
   message('Paired with your PC. Start your camera when ready.');
   listCameras();
 }
@@ -92,10 +94,18 @@ function applyCameraSettings(track, requestedFlash) {
   return apply;
 }
 
+function cameraFacing(track) {
+  const facing = track?.getSettings?.().facingMode;
+  if (facing) return facing;
+  const label = track?.label || picker.selectedOptions[0]?.text || '';
+  if (/front|facetime|selfie/i.test(label)) return 'user';
+  if (/back|rear|environment/i.test(label)) return 'environment';
+  return picker.value.startsWith('id:') ? '' : picker.value;
+}
+
 function lightKind(track) {
   if (!track) return 'none';
-  const facing = track.getSettings?.().facingMode;
-  if (facing === 'user' || (!facing && (picker.value === 'user' || /front|facetime|selfie/i.test(track.label)))) return 'screen';
+  if (cameraFacing(track) === 'user') return 'screen';
   return supportsFlash(track) ? 'torch' : 'none';
 }
 
@@ -208,11 +218,19 @@ form.addEventListener('submit', async (event) => {
 
 function updateButtons() {
   toggle.disabled = busy;
-  picker.disabled = busy;
-  const light = lightKind(media?.getVideoTracks()[0]);
-  flash.hidden = light === 'none';
-  flash.textContent = light === 'screen' ? 'Screen light' : 'Flash';
-  flash.disabled = busy || flashBusy;
+  picker.disabled = busy || flashBusy;
+  const track = media?.getVideoTracks()[0];
+  const facing = cameraFacing(track);
+  for (const button of document.querySelectorAll('[data-facing]')) {
+    button.disabled = picker.disabled;
+    button.setAttribute('aria-pressed', String(button.dataset.facing === facing));
+  }
+  for (const button of document.querySelectorAll('[data-zoom]')) {
+    button.setAttribute('aria-pressed', String(Number(button.dataset.zoom) === framingZoom));
+  }
+  byId('light-label').textContent = facing === 'user' ? 'Screen light' : 'Flash';
+  byId('light-state').textContent = flashOn ? 'On' : 'Off';
+  flash.disabled = busy || flashBusy || lightKind(track) === 'none';
   flash.setAttribute('aria-pressed', String(flashOn));
   toggle.textContent = media ? 'Stop camera' : 'Start camera';
   toggle.classList.toggle('stop-camera', !!media);
@@ -443,7 +461,7 @@ function framing(sourceWidth, sourceHeight) {
   const outputHeight = wide ? short : long;
   const width = quarterTurn ? outputHeight : outputWidth;
   const height = quarterTurn ? outputWidth : outputHeight;
-  const scale = Math.max(width / sourceWidth, height / sourceHeight);
+  const scale = Math.max(width / sourceWidth, height / sourceHeight) * framingZoom;
   return { outputWidth, outputHeight, rotation, width: sourceWidth * scale, height: sourceHeight * scale };
 }
 
@@ -593,8 +611,21 @@ picker.addEventListener('change', () => {
   if (media) {
     stopCamera();
     startCamera();
-  }
+  } else updateButtons();
 });
+for (const button of document.querySelectorAll('[data-facing]')) {
+  button.addEventListener('click', () => {
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    picker.value = button.dataset.facing;
+    picker.dispatchEvent(new Event('change'));
+  });
+}
+for (const button of document.querySelectorAll('[data-zoom]')) {
+  button.addEventListener('click', () => {
+    framingZoom = Number(button.dataset.zoom);
+    updateButtons();
+  });
+}
 navigator.mediaDevices?.addEventListener('devicechange', listCameras);
 flash.addEventListener('click', () => setLight(!flashOn));
 floatCamera.addEventListener('click', toggleFloatingPreview);

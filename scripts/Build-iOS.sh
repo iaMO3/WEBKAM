@@ -22,4 +22,4 @@ cp "$root/mobile/ios/Info.plist" "$root/mobile/ios/"*.png "$app/"
 cp "$root/mobile/home.html" "$app/CameraUI/"
 cp "$root/mobile/ios/ui/camera.html" "$root/mobile/ios/ui/camera.js" "$root/public/style.css" "$app/CameraUI/"
 cp "$root/assets/pocketcam-192.png" "$root/assets/studio-landscape.png" "$app/CameraUI/icons/"
-(cd "$stage" && /usr/bin/ditto -c -k --keepParent Payload "$root/dist/WEBKAM-1.0.1-iPhone-unsigned.ipa")
+(cd "$stage" && /usr/bin/ditto -c -k --keepParent Payload "$root/dist/WEBKAM-1.0.2-iPhone-unsigned.ipa")

@@ -55,10 +55,20 @@ window.renderPocketCam = (state) => {
   }
   picker.value = state.lens;
   picker.disabled = !lenses.length || state.opening || state.pipStarting || state.flashBusy;
-  flash.hidden = !state.flashAvailable;
-  flash.textContent = state.screenLight ? 'Screen light' : 'Flash';
+  const activeLens = lenses.find(lens => lens.id === state.lens);
+  for (const button of document.querySelectorAll('[data-facing]')) {
+    button.disabled = picker.disabled || !lenses.some(lens => lens.facing === button.dataset.facing);
+    button.setAttribute('aria-pressed', String(activeLens?.facing === button.dataset.facing));
+  }
+  for (const button of document.querySelectorAll('[data-zoom]')) {
+    const factor = Number(button.dataset.zoom);
+    button.disabled = !state.preview || factor > state.maxZoom;
+    button.setAttribute('aria-pressed', String(Math.abs(factor - state.zoom) < 0.01));
+  }
+  byId('light-label').textContent = state.screenLight ? 'Screen light' : 'Flash';
+  byId('light-state').textContent = state.flashOn ? 'On' : 'Off';
   document.documentElement.classList.toggle('screen-light', !!(state.screenLight && state.flashOn));
-  flash.disabled = state.flashBusy;
+  flash.disabled = state.flashBusy || !state.flashAvailable;
   flash.setAttribute('aria-pressed', String(state.flashOn));
   flashNote.textContent = state.flashNote;
   flashNote.hidden = !state.flashNote;
@@ -80,6 +90,17 @@ form.addEventListener('submit', (event) => {
 });
 byId('retry').addEventListener('click', () => send('retry'));
 picker.addEventListener('change', () => send('lens', {id: picker.value}));
+for (const button of document.querySelectorAll('[data-facing]')) {
+  button.addEventListener('click', () => {
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    const choices = lenses.filter(lens => lens.facing === button.dataset.facing);
+    const lens = choices.find(choice => choice.standard) || choices[0];
+    if (lens) send('lens', {id: lens.id});
+  });
+}
+for (const button of document.querySelectorAll('[data-zoom]')) {
+  button.addEventListener('click', () => send('zoom', {factor: Number(button.dataset.zoom)}));
+}
 toggle.addEventListener('click', () => send('camera'));
 flash.addEventListener('click', () => send('flash'));
 floating.addEventListener('click', () => {

@@ -94,3 +94,11 @@ button:disabled { opacity: .6; cursor: wait; }
 }
 .screen-light .phone-stage { width: min(100%, 42vh); margin-inline: auto; }
 .screen-light .floating-preview .phone-stage { width: 100%; }
+
+.shot-control { display: flex; flex-wrap: wrap; gap: 5px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.shot-control legend { margin-bottom: 6px; padding: 0; color: var(--muted); font-size: 13px; font-weight: 650; }
+.shot-control button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 10px; font-size: 14px; }
+.shot-control button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.shot-control button:disabled { cursor: default; }
+#camera-flash[aria-pressed="true"] { background: #ffdd92; color: #302715; }
+#light-state { padding-left: 5px; border-left: 1px solid currentColor; }
