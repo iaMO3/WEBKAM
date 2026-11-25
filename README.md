@@ -4,7 +4,7 @@
 
 Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. WEBKAM is free on all three platforms and supports **up to 1080p at 60 FPS**. The Windows receiver runs as a native Rust app. In Discord or your recording software, select **WEBKAM (Windows Virtual Camera)**.
 
-<p>
+<p align="center">
   <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3"><img src="docs/media/action-download.svg" alt="Downloads"></a>
   <a href="https://iamo3.github.io/WEBKAM/#preview"><img src="docs/media/action-tour.svg" alt="App tour"></a>
   <a href="#install-and-pair"><img src="docs/media/action-pair.svg" alt="Quick start"></a>
