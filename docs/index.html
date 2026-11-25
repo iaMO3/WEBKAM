@@ -40,6 +40,7 @@
       <symbol id="android" viewBox="0 0 24 24">
         <path d="M3 17a9 9 0 0 1 18 0ZM7 5l2 4m8-4-2 4M8 13h.1m7.8 0h.1" />
       </symbol>
+      <symbol id="usb" viewBox="0 0 24 24"><path d="M12 21V3m-3 3 3-3 3 3m-3 11-5-4v-2m5 3 5-4V8" /><circle cx="7" cy="9" r="2" /><rect x="15" y="4" width="4" height="4" rx=".5" /></symbol>
       <symbol id="wifi" viewBox="0 0 24 24">
         <path d="M2 8a16 16 0 0 1 20 0M5.5 12a10.5 10.5 0 0 1 13 0M9 16a5 5 0 0 1 6 0M12 20h.01" />
       </symbol>
@@ -156,7 +157,7 @@
       <section class="wrap section" id="preview">
         <div class="section-head">
           <h2>Inside <em>WEBKAM.</em></h2>
-          <p>Explore the app screens with an example camera feed and pairing details.</p>
+          <p>Try the camera controls, switch lenses, and walk through pairing with a sample feed.</p>
         </div>
         <div class="tour">
           <nav class="tour-tabs" aria-label="App screens">
@@ -172,58 +173,114 @@
           </nav>
           <article class="tour-panel" id="panel-desktop">
             <div class="panel-intro">
-              <h3>Set the shot from Windows.</h3>
-              <p>
-                Choose 720p or 1080p, switch between 30 and 60 FPS, and rotate the feed in 90° steps. The
-                preview reports the incoming frame rate.
-              </p>
+              <h3>Take control of the shot.</h3>
+              <p>Try the same resolution, frame rate, and rotation controls you get in the Windows receiver.</p>
+              <a class="tour-reference" href="media/desktop.webp">
+                See the Windows app <svg class="icon" aria-hidden="true"><use href="#expand" /></svg>
+              </a>
             </div>
-            <a
-              class="tour-shot desktop"
-              href="media/desktop.webp"
-              aria-label="Open the full Windows dashboard image"
-              ><img
-                src="media/desktop.webp"
-                width="1060"
-                height="765"
-                alt="WEBKAM on Windows showing the sample camera feed, connection status and video settings."
-            /></a>
+            <div class="demo-console" data-demo="desktop">
+              <div class="demo-title">
+                <span><img src="media/pocketcam.png" alt="" /> WEBKAM</span>
+                <span class="demo-signal">Demo feed</span>
+              </div>
+              <figure class="demo-viewport">
+                <div class="demo-sensor">
+                  <img class="demo-image" src="media/test-frame.webp" width="960" height="540" alt="Lavender geometric test chart with a peach circle" />
+                  <span class="demo-sweep" aria-hidden="true"></span>
+                  <i class="demo-corners" aria-hidden="true"></i>
+                </div>
+                <span class="demo-telemetry" role="status">1920 × 1080 · 30 FPS target</span>
+              </figure>
+              <div class="demo-controls" hidden>
+                <fieldset class="demo-options">
+                  <legend>Resolution</legend>
+                  <div>
+                    <label><input type="radio" name="demo-resolution" value="720" /><span>720p</span></label>
+                    <label><input type="radio" name="demo-resolution" value="1080" checked /><span>1080p</span></label>
+                  </div>
+                </fieldset>
+                <fieldset class="demo-options">
+                  <legend>Frame rate</legend>
+                  <div>
+                    <label><input type="radio" name="demo-fps" value="30" checked /><span>30 FPS</span></label>
+                    <label><input type="radio" name="demo-fps" value="60" /><span>60 FPS</span></label>
+                  </div>
+                </fieldset>
+                <button class="demo-button demo-rotate" type="button">Rotate <span aria-hidden="true">↻</span></button>
+              </div>
+            </div>
           </article>
           <article class="tour-panel" id="panel-phone">
             <div class="panel-intro">
-              <h3>Choose the lens on your phone.</h3>
-              <p>
-                Start the camera, choose a lens your phone exposes, and check the target video mode. The
-                iPhone companion also offers a native floating preview on supported devices.
-              </p>
+              <h3>Find the right lens.</h3>
+              <p>See how the wide, standard, and close views change the sample. WEBKAM lists the lenses your phone makes available.</p>
+              <a class="tour-reference" href="media/phone.webp">
+                See the phone app <svg class="icon" aria-hidden="true"><use href="#expand" /></svg>
+              </a>
             </div>
-            <a class="tour-shot phone" href="media/phone.webp" aria-label="Open the full Phone controls image"
-              ><img
-                src="media/phone.webp"
-                width="780"
-                height="1460"
-                alt="WEBKAM on iPhone showing its camera lens picker, stream controls and floating preview button."
-            /></a>
+            <div class="demo-phone-stage">
+              <div class="demo-handset" data-demo="phone">
+                <div class="demo-title">
+                  <span><img src="media/pocketcam.png" alt="" /> WEBKAM</span>
+                  <span class="demo-signal" role="status">Preview</span>
+                </div>
+                <figure class="demo-viewport">
+                  <div class="demo-sensor">
+                    <img class="demo-image" src="media/test-frame.webp" width="960" height="540" alt="Sample camera preview" />
+                    <i class="demo-corners" aria-hidden="true"></i>
+                  </div>
+                  <span class="demo-phone-idle" hidden>Camera stopped</span>
+                </figure>
+                <div class="demo-controls" hidden>
+                  <fieldset class="demo-options">
+                    <legend>Camera lens</legend>
+                    <div>
+                      <label><input type="radio" name="demo-lens" value="1" /><span>Wide</span></label>
+                      <label><input type="radio" name="demo-lens" value="1.35" checked /><span>Standard</span></label>
+                      <label><input type="radio" name="demo-lens" value="2.2" /><span>Close</span></label>
+                    </div>
+                  </fieldset>
+                  <button class="demo-button demo-stream" type="button">Stop sample</button>
+                </div>
+              </div>
+            </div>
           </article>
           <article class="tour-panel" id="panel-pairing">
             <div class="panel-intro">
-              <h3>Pair with your own PC.</h3>
-              <p>
-                On Windows, choose your connection. Scan the QR code or enter the PC address in the phone
-                companion, then use the eight-digit code shown on your PC.
-              </p>
+              <h3>Pick your connection.</h3>
+              <p>Choose how your phone connects. Run through a sample pairing to see what happens on both devices.</p>
+              <a class="tour-reference" href="media/pairing.webp">
+                See the pairing screen <svg class="icon" aria-hidden="true"><use href="#expand" /></svg>
+              </a>
             </div>
-            <a class="tour-shot pairing" href="media/pairing.webp" aria-label="Open the full Pairing image"
-              ><img
-                src="media/pairing.webp"
-                width="1060"
-                height="765"
-                alt="WEBKAM pairing screen in light mode with an example QR code and pairing code."
-            /></a>
+            <div class="demo-console demo-pairing" data-demo="pairing">
+              <div class="demo-title">
+                <span><img src="media/pocketcam.png" alt="" /> Connect your phone</span>
+                <span class="demo-signal" role="status">Ready to pair</span>
+              </div>
+              <div class="demo-route" aria-hidden="true">
+                <div><svg class="icon"><use href="#phone" /></svg><span>Phone</span></div>
+                <span class="demo-route-line"><svg class="icon"><use href="#wifi" /></svg></span>
+                <div><svg class="icon"><use href="#monitor" /></svg><span>Windows</span></div>
+              </div>
+              <div class="demo-controls" hidden>
+                <fieldset class="demo-options">
+                  <legend>Connection</legend>
+                  <div>
+                    <label><input type="radio" name="demo-route" value="wifi" checked /><span>Wi-Fi</span></label>
+                    <label><input type="radio" name="demo-route" value="iphone" /><span>iPhone USB</span></label>
+                    <label><input type="radio" name="demo-route" value="android" /><span>Android USB</span></label>
+                  </div>
+                </fieldset>
+                <p class="demo-route-help">Join the same network, then scan the QR code shown in WEBKAM.</p>
+                <button class="demo-button demo-connect" type="button">Pair sample phone</button>
+              </div>
+            </div>
           </article>
           <article class="tour-panel" id="panel-framing">
             <div class="panel-intro">
-              <h3>Try the two orientations.</h3>
+              <h3>Frame it your way.</h3>
               <p>
                 Switch this sample between landscape and portrait. In the Windows app, Auto also follows your
                 phone as you turn it.

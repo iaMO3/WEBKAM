@@ -107,3 +107,71 @@ if ("IntersectionObserver" in window) {
     .querySelectorAll(".section-head, .setup-heading, .setup-step, .download-row")
     .forEach((element) => observer.observe(element));
 }
+
+const desktopDemo = document.querySelector('[data-demo="desktop"]');
+const desktopViewport = desktopDemo.querySelector(".demo-viewport");
+const desktopStatus = desktopDemo.querySelector(".demo-telemetry");
+let rotation = 0;
+
+function updateDesktopDemo() {
+  const resolution = desktopDemo.querySelector('[name="demo-resolution"]:checked').value;
+  const fps = desktopDemo.querySelector('[name="demo-fps"]:checked').value;
+  const landscape = rotation % 180 === 0;
+  const dimensions = resolution === "1080" ? [1920, 1080] : [1280, 720];
+  if (!landscape) dimensions.reverse();
+  desktopDemo.dataset.resolution = resolution;
+  desktopDemo.dataset.fps = fps;
+  desktopViewport.style.setProperty("--demo-angle", `${rotation}deg`);
+  desktopViewport.toggleAttribute("data-portrait", !landscape);
+  const angle = rotation % 360;
+  desktopStatus.textContent = `${dimensions.join(" × ")} · ${fps} FPS target${angle ? ` · ${angle}°` : ""}`;
+}
+
+desktopDemo.addEventListener("change", updateDesktopDemo);
+desktopDemo.querySelector(".demo-rotate").addEventListener("click", () => {
+  rotation += 90;
+  updateDesktopDemo();
+});
+
+const phoneDemo = document.querySelector('[data-demo="phone"]');
+const phoneStatus = phoneDemo.querySelector(".demo-signal");
+const phoneButton = phoneDemo.querySelector(".demo-stream");
+function updatePhoneLens() {
+  const lens = phoneDemo.querySelector('[name="demo-lens"]:checked').value;
+  phoneDemo.style.setProperty("--demo-zoom", lens);
+}
+phoneDemo.addEventListener("change", updatePhoneLens);
+updatePhoneLens();
+phoneButton.addEventListener("click", () => {
+  const running = phoneDemo.dataset.state === "idle";
+  phoneDemo.dataset.state = running ? "running" : "idle";
+  phoneStatus.textContent = running ? "Preview" : "Stopped";
+  phoneDemo.querySelector(".demo-phone-idle").hidden = running;
+  phoneButton.textContent = running ? "Stop sample" : "Start sample";
+});
+
+const pairingDemo = document.querySelector('[data-demo="pairing"]');
+const routeHelp = pairingDemo.querySelector(".demo-route-help");
+const routeIcon = pairingDemo.querySelector(".demo-route-line use");
+const pairButton = pairingDemo.querySelector(".demo-connect");
+const routeInstructions = {
+  wifi: "Join the same network, then scan the QR code shown in WEBKAM.",
+  iphone: "Plug in your iPhone, trust this computer, and turn on Personal Hotspot. Scan the QR code in WEBKAM.",
+  android: "Plug in your Android phone. On Windows, turn on USB tethering or use USB debugging with the native companion.",
+};
+
+function updatePairingDemo(paired) {
+  const route = pairingDemo.querySelector('[name="demo-route"]:checked').value;
+  pairingDemo.dataset.state = paired ? "paired" : "idle";
+  pairingDemo.querySelector(".demo-signal").textContent = paired ? "Sample phone paired" : "Ready to pair";
+  pairButton.textContent = paired ? "Disconnect sample phone" : "Pair sample phone";
+  routeHelp.textContent = paired
+    ? "The phone can now start streaming. Select WEBKAM as the camera in your Windows app."
+    : routeInstructions[route];
+  routeIcon.setAttribute("href", paired ? "#check" : route === "wifi" ? "#wifi" : "#usb");
+}
+
+pairButton.addEventListener("click", () => updatePairingDemo(pairingDemo.dataset.state !== "paired"));
+pairingDemo.addEventListener("change", () => updatePairingDemo(false));
+updatePairingDemo(false);
+document.querySelectorAll(".demo-controls").forEach((controls) => (controls.hidden = false));
