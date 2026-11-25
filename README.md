@@ -1,12 +1,12 @@
-[![WEBKAM · Free phone webcam for Windows, up to 1080p at 60 FPS](docs/media/pocketcam-banner.png)](https://iamo3.github.io/PocketCam/)
+[![WEBKAM · Free phone webcam for Windows, up to 1080p at 60 FPS](docs/media/pocketcam-banner.png)](https://iamo3.github.io/WEBKAM/)
 
 # WEBKAM
 
 Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. WEBKAM is free on all three platforms and supports **up to 1080p at 60 FPS**. The Windows receiver runs as a native Rust app. In Discord or your recording software, select **WEBKAM (Windows Virtual Camera)**.
 
 <p>
-  <a href="https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3"><img src="docs/media/action-download.svg" alt="Downloads"></a>
-  <a href="https://iamo3.github.io/PocketCam/#preview"><img src="docs/media/action-tour.svg" alt="App tour"></a>
+  <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3"><img src="docs/media/action-download.svg" alt="Downloads"></a>
+  <a href="https://iamo3.github.io/WEBKAM/#preview"><img src="docs/media/action-tour.svg" alt="App tour"></a>
   <a href="#install-and-pair"><img src="docs/media/action-pair.svg" alt="Quick start"></a>
   <a href="#build-from-source"><img src="docs/media/action-source.svg" alt="Build from source"></a>
 </p>
@@ -27,7 +27,7 @@ Use your iPhone or Android as a **Windows 11 webcam** over Wi-Fi or USB. WEBKAM 
   <tr><td>Check incoming FPS, set the output orientation and rotate the picture.</td><td>Choose the lens and start or stop the stream.</td></tr>
 </table>
 
-These screens show an example session. Select a screenshot for the full image, or [explore the pairing screen and framing demo](https://iamo3.github.io/PocketCam/#panel-pairing).
+These screens show an example session. Select a screenshot for the full image, or [explore the pairing screen and framing demo](https://iamo3.github.io/WEBKAM/#panel-pairing).
 
 ## Install and pair
 
@@ -52,11 +52,11 @@ All WEBKAM downloads are free. For browser capture, scan the desktop QR code in 
 
 | Platform | Download | Requirements |
 | --- | --- | --- |
-| Windows | [WEBKAM 2.4.3 Setup](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
-| Android | [WEBKAM 2.4.1 APK](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk) | Android 8 or later. Signed APK. |
-| iPhone | [WEBKAM PiP 2.6.1 IPA](https://github.com/iaMO3/PocketCam/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
+| Windows | [WEBKAM 2.4.3 Setup](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
+| Android | [WEBKAM 2.4.1 APK](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk) | Android 8 or later. Signed APK. |
+| iPhone | [WEBKAM PiP 2.6.1 IPA](https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
 
-[Release notes and SHA-256 checksums](https://github.com/iaMO3/PocketCam/releases/tag/v2.4.3)
+[Release notes and SHA-256 checksums](https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3)
 
 ## Video quality and orientation
 
