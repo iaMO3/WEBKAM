@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://iamo3.github.io/WEBKAM/media/pocketcam-banner.png" />
     <link rel="icon" href="media/pocketcam.png" />
     <link rel="apple-touch-icon" href="media/pocketcam.png" />
-    <link rel="stylesheet" href="style.css?v=interactive-tour" />
-    <script defer src="tour.js?v=interactive-tour"></script>
+    <link rel="stylesheet" href="style.css?v=downloads" />
+    <script defer src="tour.js?v=downloads"></script>
     <title>WEBKAM · Your phone is your webcam</title>
   </head>
   <body>
@@ -438,82 +438,85 @@
           </dialog>
         </div>
       </section>
-      <section class="wrap section" id="downloads">
-        <div class="section-head">
-          <h2>Downloads</h2>
-          <p>
-            WEBKAM is free. Start with the receiver for your computer, then pair your phone.
-          </p>
+      <section class="wrap section" id="downloads" aria-labelledby="downloads-heading">
+        <div class="section-head download-heading">
+          <h2 id="downloads-heading">Download <em>WEBKAM.</em></h2>
+          <p>Free to download and use. Install WEBKAM on your computer first, then pair your phone.</p>
         </div>
         <div class="downloads">
-          <article class="download-row">
-            <div class="os">
-              <svg class="icon" aria-hidden="true"><use href="#monitor" /></svg>
-              <h3>Windows</h3>
+          <section class="download-group receiver-downloads" aria-labelledby="receiver-downloads-title">
+            <h3 id="receiver-downloads-title">For your computer</h3>
+            <div class="download-list">
+              <article class="download-card">
+                <span class="platform-icon" aria-hidden="true"><svg class="icon"><use href="#monitor" /></svg></span>
+                <div class="download-info">
+                  <h4>Windows</h4>
+                  <p class="download-requirements">Windows 11 · x64</p>
+                  <p>Guided setup includes the virtual camera and optional USB components.</p>
+                </div>
+                <a class="download-action" href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe">
+                  <svg class="icon" aria-hidden="true"><use href="#download" /></svg>
+                  Windows installer <span class="download-format">EXE</span>
+                </a>
+              </article>
+              <article class="download-card" id="download-mac">
+                <span class="platform-icon" aria-hidden="true"><svg class="icon"><use href="#monitor" /></svg></span>
+                <div class="download-info">
+                  <h4>macOS</h4>
+                  <p class="download-requirements">macOS 13+ · Intel and Apple silicon</p>
+                  <p>Preview build with a bundled camera extension. Up to 1080p at 30 FPS.</p>
+                </div>
+                <a class="download-action" href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3-mac.1/WEBKAM-2.4.3-macOS-universal.dmg">
+                  <svg class="icon" aria-hidden="true"><use href="#download" /></svg>
+                  Universal Mac DMG
+                </a>
+              </article>
             </div>
-            <div>
-              <strong>Windows 11 x64</strong>
-              <p>Guided installer with the virtual camera and optional USB components.</p>
+            <a class="download-help" href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3-mac.1">
+              Mac setup and checksum <svg class="icon" aria-hidden="true"><use href="#out" /></svg>
+            </a>
+          </section>
+          <section class="download-group phone-downloads" aria-labelledby="phone-downloads-title">
+            <h3 id="phone-downloads-title">For your phone</h3>
+            <div class="download-list">
+              <article class="download-card">
+                <span class="platform-icon" aria-hidden="true"><svg class="icon"><use href="#android" /></svg></span>
+                <div class="download-info">
+                  <h4>Android</h4>
+                  <p class="download-requirements">Android 8+</p>
+                  <p>Signed app with Wi-Fi, USB support, and floating preview.</p>
+                </div>
+                <a class="download-action" href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk">
+                  <svg class="icon" aria-hidden="true"><use href="#download" /></svg>
+                  Android APK
+                </a>
+              </article>
+              <article class="download-card">
+                <span class="platform-icon" aria-hidden="true"><svg class="icon"><use href="#phone" /></svg></span>
+                <div class="download-info">
+                  <h4>iPhone</h4>
+                  <p class="download-requirements">iOS 18+ · Personal signing required</p>
+                  <p>Native floating preview is still awaiting testing on an iPhone.</p>
+                </div>
+                <a class="download-action" href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa">
+                  <svg class="icon" aria-hidden="true"><use href="#download" /></svg>
+                  Unsigned iPhone IPA
+                </a>
+              </article>
             </div>
-            <a
-              class="file"
-              href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.3-Setup.exe"
-              >Windows installer <svg class="icon" aria-hidden="true"><use href="#download" /></svg
-            ></a>
-          </article>
-          <article class="download-row" id="download-mac">
-            <div class="os">
-              <svg class="icon" aria-hidden="true"><use href="#monitor" /></svg>
-              <h3>macOS</h3>
-            </div>
-            <div>
-              <strong>macOS 13 or later · Intel and Apple silicon</strong>
-              <p>Preview release with the bundled camera extension. Up to 1080p at 30 FPS.</p>
-              <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3-mac.1">Mac setup and checksum</a>
-            </div>
-            <a class="file" href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3-mac.1/WEBKAM-2.4.3-macOS-universal.dmg"
-              >Universal Mac DMG <svg class="icon" aria-hidden="true"><use href="#download" /></svg
-            ></a>
-          </article>
-          <article class="download-row">
-            <div class="os">
-              <svg class="icon" aria-hidden="true"><use href="#android" /></svg>
-              <h3>Android</h3>
-            </div>
-            <div>
-              <strong>Android 8 or later</strong>
-              <p>Signed APK with Wi-Fi, supported USB connections, and floating preview.</p>
-            </div>
-            <a
-              class="file"
-              href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.4.1-Android.apk"
-              >Android APK <svg class="icon" aria-hidden="true"><use href="#download" /></svg
-            ></a>
-          </article>
-          <article class="download-row">
-            <div class="os">
-              <svg class="icon" aria-hidden="true"><use href="#phone" /></svg>
-              <h3>iPhone</h3>
-            </div>
-            <div>
-              <strong>iOS 18 or later</strong>
-              <p>
-                Hybrid companion. Personal signing is required. Native floating preview awaits a physical
-                iPhone test.
-              </p>
-            </div>
-            <a
-              class="file"
-              href="https://github.com/iaMO3/WEBKAM/releases/download/v2.4.3/WEBKAM-2.6.1-iPhone-unsigned.ipa"
-              >Unsigned iPhone IPA <svg class="icon" aria-hidden="true"><use href="#download" /></svg
-            ></a>
-          </article>
+            <a class="download-help" href="https://github.com/iaMO3/WEBKAM#install-webkam-on-the-iphone-home-screen">
+              iPhone Home Screen setup <svg class="icon" aria-hidden="true"><use href="#out" /></svg>
+            </a>
+          </section>
         </div>
-        <p class="notes">
-          <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3"
-            >Release notes and SHA-256 checksums <svg class="icon" aria-hidden="true"><use href="#out" /></svg
-          ></a>
-        </p>
+        <div class="download-footer">
+          <a class="download-help" href="#setup">
+            Pair your phone <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg>
+          </a>
+          <a class="download-help" href="https://github.com/iaMO3/WEBKAM/releases/tag/v2.4.3">
+            Release notes and checksums <svg class="icon" aria-hidden="true"><use href="#out" /></svg>
+          </a>
+        </div>
       </section>
     </main>
     <footer>

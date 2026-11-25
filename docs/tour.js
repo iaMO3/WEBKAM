@@ -104,7 +104,7 @@ if ("IntersectionObserver" in window) {
     }
   });
   document
-    .querySelectorAll(".section-head, .setup-heading, .setup-step, .download-row")
+    .querySelectorAll(".section-head, .setup-heading, .setup-step, .download-card")
     .forEach((element) => observer.observe(element));
 }
 
