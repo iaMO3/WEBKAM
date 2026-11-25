@@ -1,7 +1,7 @@
 use crate::{
     frames::Frame as VideoFrame,
     network::{self, Adapter, AdbForward, Connection, Link},
-    web::{App, Orientation, Quality, Rotation, Settings, Status},
+    web::{App, LightKind, Orientation, Quality, Rotation, Settings, Status},
 };
 use anyhow::{Context, Result};
 use eframe::egui::{
@@ -389,7 +389,7 @@ impl Desktop {
         );
     }
 
-    fn video_controls(&mut self, ui: &mut egui::Ui) {
+    fn video_controls(&mut self, ui: &mut egui::Ui, status: &Status) {
         let previous = self.settings;
         section(ui).show(ui, |ui| {
             ui.set_width(ui.available_width());
@@ -433,13 +433,55 @@ impl Desktop {
                     if columns == 1 {
                         ui.end_row();
                     }
-                    segment_group(
-                        ui,
-                        "Resolution",
-                        &mut self.settings.quality,
-                        [(Quality::Hd, "720p"), (Quality::FullHd, "1080p")],
-                        60.0,
-                    );
+                    ui.horizontal_top(|ui| {
+                        segment_group(
+                            ui,
+                            "Resolution",
+                            &mut self.settings.quality,
+                            [(Quality::Hd, "720p"), (Quality::FullHd, "1080p")],
+                            60.0,
+                        );
+                        ui.vertical(|ui| {
+                            let light = status.light;
+                            let label = if light.light == LightKind::Screen {
+                                "Screen light"
+                            } else {
+                                "Flash"
+                            };
+                            detail(ui, label);
+                            let button = egui::Button::selectable(
+                                light.on,
+                                if light.on { "      On" } else { "      Off" },
+                            )
+                            .min_size(vec2(60.0, 32.0));
+                            let response = ui.add_enabled(light.light != LightKind::None, button);
+                            let center = response.rect.left_center() + vec2(13.0, 0.0);
+                            let bolt = [
+                                (2., -7.),
+                                (-4., 1.),
+                                (0., 1.),
+                                (-2., 7.),
+                                (5., -2.),
+                                (1., -2.),
+                                (2., -7.),
+                            ]
+                            .map(|(x, y)| center + vec2(x, y))
+                            .to_vec();
+                            let color = ui.style().interact(&response).fg_stroke.color;
+                            ui.painter()
+                                .add(egui::Shape::line(bolt, Stroke::new(1.4_f32, color)));
+                            if response.clicked() {
+                                self.app.toggle_light();
+                            }
+                            response.on_hover_text(match light.light {
+                                LightKind::Torch => "Switch the phone torch on or off",
+                                LightKind::Screen => "Use the phone screen to light your face",
+                                LightKind::None => {
+                                    "Start a supported camera on the updated phone app"
+                                }
+                            });
+                        });
+                    });
                     ui.end_row();
                     segment_group(
                         ui,
@@ -806,7 +848,7 @@ impl eframe::App for Desktop {
                             );
                             match self.compact_page {
                                 CompactPage::Phone => self.connection_column(ui, &status),
-                                CompactPage::Video => self.video_controls(ui),
+                                CompactPage::Video => self.video_controls(ui, &status),
                             }
                         } else {
                             let left = (width * 0.28).clamp(236.0, 340.0);
@@ -831,7 +873,7 @@ impl eframe::App for Desktop {
                                         ui.spacing_mut().item_spacing.x = 8.0;
                                         self.preview_panel(ui, &status);
                                         ui.add_space(3.0);
-                                        self.video_controls(ui);
+                                        self.video_controls(ui, &status);
                                     },
                                 );
                             });

@@ -2104,7 +2104,7 @@ dependencies = [
 
 [[package]]
 name = "pocketcam"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -2131,7 +2131,7 @@ dependencies = [
 
 [[package]]
 name = "pocketcam-camera"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "windows",
  "windows-core",

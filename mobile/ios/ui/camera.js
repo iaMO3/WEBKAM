@@ -56,6 +56,8 @@ window.renderPocketCam = (state) => {
   picker.value = state.lens;
   picker.disabled = !lenses.length || state.opening || state.pipStarting || state.flashBusy;
   flash.hidden = !state.flashAvailable;
+  flash.textContent = state.screenLight ? 'Screen light' : 'Flash';
+  document.documentElement.classList.toggle('screen-light', !!(state.screenLight && state.flashOn));
   flash.disabled = state.flashBusy;
   flash.setAttribute('aria-pressed', String(state.flashOn));
   flashNote.textContent = state.flashNote;

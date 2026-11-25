@@ -69,7 +69,8 @@ function constraints(selected) {
   return {
     width: { ideal: Math.max(selected.width, selected.height) },
     height: { ideal: Math.min(selected.width, selected.height) },
-    frameRate: { ideal: selected.fps, max: selected.fps }
+    frameRate: { ideal: selected.fps, max: selected.fps },
+    advanced: [{ frameRate: { min: selected.fps, max: selected.fps } }]
   };
 }
 
@@ -84,23 +85,39 @@ function applyCameraSettings(track, requestedFlash) {
   const apply = cameraSettings.then(() => {
     if (track !== media?.getVideoTracks()[0]) return;
     const settings = constraints(mode);
-    if (supportsFlash(track)) settings.advanced = [{ torch: requestedFlash ?? flashOn }];
+    if (lightKind(track) === 'torch') settings.advanced.unshift({ torch: requestedFlash ?? flashOn });
     return track.applyConstraints(settings);
   });
   cameraSettings = apply.catch(() => {});
   return apply;
 }
 
-async function toggleFlash() {
+function lightKind(track) {
+  if (!track) return 'none';
+  const facing = track.getSettings?.().facingMode;
+  if (facing === 'user' || (!facing && (picker.value === 'user' || /front|facetime|selfie/i.test(track.label)))) return 'screen';
+  return supportsFlash(track) ? 'torch' : 'none';
+}
+
+function reportLight() {
+  if (socket?.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ light: lightKind(media?.getVideoTracks()[0]), on: flashOn }));
+  }
+}
+
+async function setLight(next) {
   const track = media?.getVideoTracks()[0];
-  if (!supportsFlash(track) || busy || flashBusy) return;
-  const next = !flashOn;
+  const kind = lightKind(track);
+  if (kind === 'none' || busy || flashBusy) { reportLight(); return; }
   flashBusy = true;
   flashNote.hidden = true;
   updateButtons();
   try {
-    await applyCameraSettings(track, next);
-    if (track === media?.getVideoTracks()[0]) flashOn = next;
+    if (kind === 'torch') await applyCameraSettings(track, next);
+    if (track === media?.getVideoTracks()[0]) {
+      flashOn = next;
+      document.documentElement.classList.toggle('screen-light', kind === 'screen' && next);
+    }
   } catch {
     if (track === media?.getVideoTracks()[0]) {
       flashNote.textContent = 'The flash couldn’t switch. Try again or choose a different rear lens.';
@@ -110,6 +127,7 @@ async function toggleFlash() {
     if (track === media?.getVideoTracks()[0]) {
       flashBusy = false;
       updateButtons();
+      reportLight();
     }
   }
 }
@@ -191,7 +209,9 @@ form.addEventListener('submit', async (event) => {
 function updateButtons() {
   toggle.disabled = busy;
   picker.disabled = busy;
-  flash.hidden = !supportsFlash(media?.getVideoTracks()[0]);
+  const light = lightKind(media?.getVideoTracks()[0]);
+  flash.hidden = light === 'none';
+  flash.textContent = light === 'screen' ? 'Screen light' : 'Flash';
   flash.disabled = busy || flashBusy;
   flash.setAttribute('aria-pressed', String(flashOn));
   toggle.textContent = media ? 'Stop camera' : 'Start camera';
@@ -292,6 +312,7 @@ function stopCamera() {
   media = undefined;
   cameraSettings = Promise.resolve();
   flashOn = false;
+  document.documentElement.classList.remove('screen-light');
   flashBusy = false;
   flashNote.hidden = true;
   if (document.pictureInPictureElement === video) document.exitPictureInPicture().catch(() => {});
@@ -376,9 +397,12 @@ function connectVideo(current, id) {
   connection.addEventListener('message', (event) => {
     if (current !== generation || connection !== socket) return;
     try {
-      setMode(JSON.parse(event.data));
+      const command = JSON.parse(event.data);
+      if (typeof command.setLight === 'boolean') { setLight(command.setLight); return; }
+      setMode(command);
       if (!entered) {
         entered = true;
+        reportLight();
         sendFrames(current, connection);
       }
     } catch {}
@@ -395,14 +419,14 @@ function connectVideo(current, id) {
   });
 }
 
-function draw() {
+function framing(sourceWidth, sourceHeight) {
   // Devices that rotate camera frames themselves already report the new aspect.
   // Use the display angle to turn frames from cameras with a fixed sensor aspect.
   const mobile = /Android|iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const displayAngle = mobile ? (window.orientation ?? window.screen.orientation?.angle) : undefined;
   const screenAngle = typeof displayAngle === 'number' ? (displayAngle + 360) % 360 : undefined;
-  const videoWide = video.videoWidth > video.videoHeight;
+  const videoWide = sourceWidth > sourceHeight;
   const screenWide = screenAngle === 90 || screenAngle === 270;
   if (screenWide) landscapeAngle = screenAngle;
   let automatic = 0;
@@ -417,20 +441,24 @@ function draw() {
   const wide = mode.follow_phone ? sourceWide : mode.width > mode.height;
   const outputWidth = wide ? long : short;
   const outputHeight = wide ? short : long;
+  const width = quarterTurn ? outputHeight : outputWidth;
+  const height = quarterTurn ? outputWidth : outputHeight;
+  const scale = Math.max(width / sourceWidth, height / sourceHeight);
+  return { outputWidth, outputHeight, rotation, width: sourceWidth * scale, height: sourceHeight * scale };
+}
+
+function previewFrame(source, geometry) {
+  const { outputWidth, outputHeight, rotation, width, height } = geometry;
   if (canvas.width !== outputWidth || canvas.height !== outputHeight || canvas.hidden) {
     updateOutput(outputWidth, outputHeight);
     byId('camera-idle').hidden = true;
     canvas.hidden = false;
     modeLabel.hidden = false;
   }
-  const width = quarterTurn ? outputHeight : outputWidth;
-  const height = quarterTurn ? outputWidth : outputHeight;
-  const scale = Math.max(width / video.videoWidth, height / video.videoHeight);
   context.save();
   context.translate(outputWidth / 2, outputHeight / 2);
   context.rotate(rotation * Math.PI / 180);
-  context.drawImage(video, -video.videoWidth * scale / 2, -video.videoHeight * scale / 2,
-    video.videoWidth * scale, video.videoHeight * scale);
+  context.drawImage(source, -width / 2, -height / 2, width, height);
   context.restore();
 }
 
@@ -438,48 +466,123 @@ function sendFrames(current, connection) {
   const track = media?.getVideoTracks()[0];
   let nextFrame = 0;
   let mediaTime = -1;
-  let encoding = false;
-  const schedule = 'requestVideoFrameCallback' in video
-    ? (callback) => video.requestVideoFrameCallback(callback)
-    : (callback) => document.hidden && isFloating()
-      ? setTimeout(() => callback(performance.now()), 1000 / mode.fps)
-      : requestAnimationFrame(callback);
+  let inFlight = 0;
+  let captured = 0;
+  let lastSent = 0;
+  let workers = [];
+  let reader;
+  let lastPreview = -Infinity;
+  const active = () => current === generation && connection === socket && connection.readyState === WebSocket.OPEN;
+  function releaseWorkers() {
+    for (const slot of workers) slot.worker.terminate();
+    workers = [];
+  }
+  connection.addEventListener('close', () => {
+    releaseWorkers();
+    reader?.cancel().catch(() => {});
+  }, { once: true });
 
-  function frame(now) {
-    if (current !== generation || connection !== socket || connection.readyState !== WebSocket.OPEN) return;
-    schedule(frame);
+  function publish(jpeg, seq, frameMode) {
+    if (!jpeg || jpeg.size > MAX_JPEG_BYTES || seq <= lastSent || !active() ||
+        frameMode !== mode || connection.bufferedAmount > 750000) return;
+    lastSent = seq;
+    connection.send(jpeg);
+    if (connectionChip.dataset.state !== 'live') message('Live on your computer.', 'live');
+  }
+
+  if (typeof Worker === 'function' && typeof VideoFrame === 'function' &&
+      typeof OffscreenCanvas === 'function' && OffscreenCanvas.prototype.convertToBlob) {
+    try {
+      for (let i = 0; i < 2; i++) {
+        const slot = { worker: new Worker('/frame-encoder.js'), job: null };
+        workers.push(slot);
+        slot.worker.onmessage = ({data}) => {
+          if (data.failed) { releaseWorkers(); return; }
+          const job = slot.job;
+          slot.job = null;
+          if (job) publish(data.jpeg, job.seq, job.mode);
+        };
+        slot.worker.onerror = () => releaseWorkers();
+      }
+    } catch { releaseWorkers(); }
+  }
+
+  function consume(stamp, clock, source) {
     const period = 1000 / mode.fps;
-    if (track?.muted || !video.videoWidth || video.readyState < 2 || video.currentTime === mediaTime ||
-        now + period * 0.32 < nextFrame) return;
-    // Skip stale frames while encoding or waiting for the connection.
-    if (encoding || connection.bufferedAmount > 450000) return;
-    encoding = true;
-    mediaTime = video.currentTime;
-    nextFrame = Math.max(nextFrame + period, now + period * 0.52);
+    if (stamp < mediaTime) nextFrame = 0;
+    if (track?.muted || stamp === mediaTime || clock + period * 0.32 < nextFrame ||
+        connection.bufferedAmount > 450000) return;
+    const w = source?.displayWidth || video.videoWidth;
+    const h = source?.displayHeight || video.videoHeight;
+    if (!w || !h) return;
+    const slot = workers.find(slot => !slot.job);
+    if (workers.length ? !slot : inFlight >= (mode.fps === 60 ? 2 : 1)) return;
+    mediaTime = stamp;
+    nextFrame = Math.max(nextFrame + period, clock + period * 0.52);
+    const seq = ++captured;
     const frameMode = mode;
-    draw();
-
-    function encode(quality) {
-      canvas.toBlob((jpeg) => {
-        if (!jpeg || current !== generation || connection !== socket || frameMode !== mode ||
-            connection.readyState !== WebSocket.OPEN || connection.bufferedAmount > 750000) {
-          encoding = false;
-          return;
+    const geometry = framing(w, h);
+    if (slot) {
+      let snapshot;
+      try {
+        if (clock < lastPreview || clock - lastPreview >= 1000 / 30 - 1) {
+          previewFrame(source || video, geometry);
+          lastPreview = clock;
         }
-        // Retry just this frame when it exceeds the receiver’s message limit.
-        if (jpeg.size > MAX_JPEG_BYTES && quality === JPEG_QUALITY) {
+        snapshot = source ? source.clone() : new VideoFrame(video);
+        slot.job = { seq, mode: frameMode };
+        slot.worker.postMessage({ snapshot, geometry, quality: JPEG_QUALITY,
+          retryQuality: LARGE_FRAME_QUALITY, maxBytes: MAX_JPEG_BYTES }, [snapshot]);
+        return;
+      } catch { snapshot?.close(); releaseWorkers(); }
+    }
+    inFlight++;
+    previewFrame(source || video, geometry);
+    function encode(quality) {
+      canvas.toBlob(jpeg => {
+        if (jpeg?.size > MAX_JPEG_BYTES && quality === JPEG_QUALITY && active() &&
+            frameMode === mode && seq > lastSent) {
           encode(LARGE_FRAME_QUALITY);
           return;
         }
-        encoding = false;
-        if (jpeg.size > MAX_JPEG_BYTES) return;
-        connection.send(jpeg);
-        if (connectionChip.dataset.state !== 'live') message('Live on your computer.', 'live');
+        inFlight--;
+        publish(jpeg, seq, frameMode);
       }, 'image/jpeg', quality);
     }
     encode(JPEG_QUALITY);
   }
-  schedule(frame);
+
+  const schedule = 'requestVideoFrameCallback' in video
+    ? callback => video.requestVideoFrameCallback(callback)
+    : callback => document.hidden && isFloating()
+      ? setTimeout(() => callback(performance.now()), 1000 / mode.fps)
+      : requestAnimationFrame(callback);
+  function frame(now, metadata) {
+    if (!active()) return;
+    schedule(frame);
+    if (video.readyState >= 2) {
+      const stamp = metadata?.mediaTime ?? video.currentTime;
+      consume(stamp, metadata ? stamp * 1000 : now);
+    }
+  }
+
+  // Read sensor frames directly where available. A 30 Hz display can otherwise
+  // throttle a 60 Hz camera through requestVideoFrameCallback.
+  async function readTrack() {
+    try {
+      reader = new MediaStreamTrackProcessor({track, maxBufferSize: 1}).readable.getReader();
+      while (active()) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        try { if (active()) consume(value.timestamp / 1e6, value.timestamp / 1000, value); }
+        finally { value.close(); }
+      }
+    } catch { /* Other browsers drive capture from video presentation callbacks. */ }
+    finally { reader?.releaseLock(); reader = undefined; }
+    if (active()) { mediaTime = -1; nextFrame = 0; schedule(frame); }
+  }
+  if (typeof MediaStreamTrackProcessor === 'function') readTrack();
+  else schedule(frame);
 }
 
 toggle.addEventListener('click', () => {
@@ -493,7 +596,7 @@ picker.addEventListener('change', () => {
   }
 });
 navigator.mediaDevices?.addEventListener('devicechange', listCameras);
-flash.addEventListener('click', toggleFlash);
+flash.addEventListener('click', () => setLight(!flashOn));
 floatCamera.addEventListener('click', toggleFloatingPreview);
 video.addEventListener('loadeddata', updateButtons);
 for (const event of ['enterpictureinpicture', 'leavepictureinpicture', 'webkitpresentationmodechanged']) {

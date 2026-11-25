@@ -85,3 +85,12 @@ button:disabled { opacity: .6; cursor: wait; }
   button, .button { transition: transform .12s ease-out, background-color .15s; }
   button:active, .button:active { transform: scale(.985); }
 }
+
+/* Front fill lights the subject outside the video canvas. Controls remain usable. */
+:root.screen-light {
+  color-scheme: light; --page: #fff; --surface: #fff; --field: #f5f7f4; --ink: #182d23;
+  --muted: #405348; --line: #c6d3ca; --accent: #29533d; --on-accent: #fff;
+  --ticket: #e5f1e6; --danger: #922c41; --danger-fill: #fbe7eb;
+}
+.screen-light .phone-stage { width: min(100%, 42vh); margin-inline: auto; }
+.screen-light .floating-preview .phone-stage { width: 100%; }

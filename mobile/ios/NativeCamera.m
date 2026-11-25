@@ -36,11 +36,13 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     AVCaptureVideoDataOutput *_output;
     AVCaptureDeviceInput *_input;
     NSURLSessionWebSocketTask *_socket;
-    CIContext *_imageContext;
+    CIContext *_imageContext, *_softwareContext;
+    BOOL _backgroundEncoding, _screenLight;
+    NSUInteger _sendsInFlight;
     AVCaptureVideoOrientation _orientation;
     CMTime _lastFrame;
     NSUInteger _captureEpoch, _width, _height, _fps, _rotation;
-    BOOL _followPhone, _sending, _announced;
+    BOOL _followPhone, _announced;
 }
 @property (strong) PhoneLink *link;
 @property (strong) CameraInterface *cameraInterface;
@@ -79,7 +81,8 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         _capture = [AVCaptureSession new];
         _orientation = AVCaptureVideoOrientationPortrait;
         // The app can be in the background during PiP, where iOS restricts GPU work.
-        _imageContext = [CIContext contextWithOptions:@{
+        _imageContext = [CIContext contextWithOptions:@{kCIContextCacheIntermediates:@NO}];
+        _softwareContext = [CIContext contextWithOptions:@{
             kCIContextCacheIntermediates:@NO, kCIContextUseSoftwareRenderer:@YES
         }];
     }
@@ -116,6 +119,8 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
     self.observingOrientation = YES;
     [notifications addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    [notifications addObserver:self selector:@selector(renderStateChanged:) name:UIApplicationWillResignActiveNotification object:nil];
+    [notifications addObserver:self selector:@selector(renderStateChanged:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [notifications addObserver:self selector:@selector(backgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [notifications addObserver:self selector:@selector(captureInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:_capture];
     [notifications addObserver:self selector:@selector(captureResumed:) name:AVCaptureSessionInterruptionEndedNotification object:_capture];
@@ -192,6 +197,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         @"pip":@(self.stream && self.cameraReady && self.pip != nil), @"floating":@(self.pip.pictureInPictureActive),
         @"pipStarting":@(self.pipStarting), @"mode":self.modeText ?: @"",
         @"flashAvailable":@(self.stream && self.cameraReady && self.flashAvailable),
+        @"screenLight":@(self.lens.position == AVCaptureDevicePositionFront),
         @"flashOn":@(self.flashOn), @"flashBusy":@(self.flashBusy),
         @"flashNote":self.flashNote ?: @""
     }];
@@ -204,20 +210,31 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     self.flashNote = nil;
     [self updateControls];
     dispatch_async(_captureQueue, ^{
-        BOOL success = changeTorch(self->_input.device, enable);
-        [self publishFlashState:!success];
+        [self setCaptureLight:enable];
     });
+}
+
+- (void)setCaptureLight:(BOOL)enable {
+    BOOL front = _input.device.position == AVCaptureDevicePositionFront;
+    if (front) _screenLight = enable;
+    [self publishFlashState:!(front || changeTorch(_input.device, enable))];
 }
 
 // Read the active camera on the capture queue. Publish only for the current lens and stream.
 - (void)publishFlashState:(BOOL)failed {
     AVCaptureDevice *device = _input.device;
+    BOOL front = device.position == AVCaptureDevicePositionFront;
     BOOL available = device.hasTorch && [device isTorchModeSupported:AVCaptureTorchModeOn];
-    BOOL on = available && device.torchMode == AVCaptureTorchModeOn;
+    BOOL on = front ? _screenLight : available && device.torchMode == AVCaptureTorchModeOn;
+    NSDictionary *state = @{@"light": front ? @"screen" : available ? @"torch" : @"none", @"on":@(on)};
+    NSData *json = [NSJSONSerialization dataWithJSONObject:state options:0 error:NULL];
+    NSString *text = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+    if (_socket && text) [_socket sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:text]
+                            completionHandler:^(NSError *error) {}];
     NSUInteger epoch = _captureEpoch;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.epoch != epoch || self.lens != device) return;
-        self.flashAvailable = available;
+        self.flashAvailable = front || available;
         self.flashOn = on;
         self.flashBusy = NO;
         self.flashNote = failed ? @"The flash couldn’t switch. It may be temporarily unavailable." : nil;
@@ -337,7 +354,8 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
             self->_socket = [link socketForStream:stream];
             self->_fps = 0;
             self->_lastFrame = kCMTimeInvalid;
-            self->_sending = self->_announced = NO;
+            self->_sendsInFlight = 0;
+            self->_screenLight = self->_announced = NO;
             [self->_socket resume];
             [self receiveMode:self->_socket lens:lens];
         });
@@ -357,6 +375,11 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
             }
             NSData *data = [message.string dataUsingEncoding:NSUTF8StringEncoding];
             id mode = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL] : nil;
+            if ([mode isKindOfClass:NSDictionary.class] && [mode[@"setLight"] isKindOfClass:NSNumber.class]) {
+                [self setCaptureLight:[mode[@"setLight"] boolValue]];
+                [self receiveMode:socket lens:lens];
+                return;
+            }
             if (![mode isKindOfClass:NSDictionary.class] || ![self applyMode:mode lens:lens]) {
                 [self failCapture:@"Couldn’t open the selected camera or video mode."];
                 return;
@@ -391,6 +414,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     AVCaptureDeviceInput *replacement = lens ? [AVCaptureDeviceInput deviceInputWithDevice:lens error:NULL] : nil;
     if (!replacement) return NO;
     [_capture beginConfiguration];
+    _screenLight = NO;
     if (_input) {
         if (_input.device.torchMode == AVCaptureTorchModeOn) changeTorch(_input.device, NO);
         [_capture removeInput:_input];
@@ -445,16 +469,31 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
 
 - (void)applyCaptureRate {
     AVCaptureDevice *device = _input.device;
-    if (!device || ![device lockForConfiguration:NULL]) return;
-    for (AVFrameRateRange *range in device.activeFormat.videoSupportedFrameRateRanges) {
-        if (_fps >= range.minFrameRate && _fps <= range.maxFrameRate) {
-            CMTime duration = CMTimeMake(1, (int32_t)_fps);
-            device.activeVideoMinFrameDuration = duration;
-            device.activeVideoMaxFrameDuration = duration;
+    if (!device) return;
+    // A lens can expose 60 FPS on a different format than the 1080p preset chose.
+    AVCaptureDeviceFormat *best = nil;
+    NSInteger bestScore = NSIntegerMax;
+    for (AVCaptureDeviceFormat *format in device.formats) {
+        CMVideoDimensions size = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+        if (size.width < (int)MAX(_width,_height) || size.height < (int)MIN(_width,_height)) continue;
+        for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges) {
+            if (_fps < range.minFrameRate || _fps > range.maxFrameRate) continue;
+            NSInteger score = (NSInteger)size.width * size.height * 2 + (format != device.activeFormat);
+            if (score < bestScore) { best = format; bestScore = score; }
             break;
         }
     }
-    [device unlockForConfiguration];
+    if (!best) return;
+    [_capture beginConfiguration];
+    if ([device lockForConfiguration:NULL]) {
+        if (device.activeFormat != best) device.activeFormat = best;
+        CMTime duration = CMTimeMake(1, (int32_t)_fps);
+        device.activeVideoMinFrameDuration = duration;
+        device.activeVideoMaxFrameDuration = duration;
+        [device unlockForConfiguration];
+    }
+    [_capture commitConfiguration];
+    [self updateOrientation];
 }
 
 - (void)orientationChanged:(NSNotification *)notification {
@@ -525,8 +564,12 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
     image = [[image imageByCroppingToRect:crop]
         imageByApplyingTransform:CGAffineTransformMakeTranslation(-crop.origin.x,-crop.origin.y)];
     CGColorSpaceRef color = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-    NSData *jpeg = [_imageContext JPEGRepresentationOfImage:image colorSpace:color
+    CIContext *encoder = _backgroundEncoding ? _softwareContext : _imageContext;
+    NSData *jpeg = [encoder JPEGRepresentationOfImage:image colorSpace:color
         options:@{(__bridge NSString *)kCGImageDestinationLossyCompressionQuality:@(quality)}];
+    if (!jpeg && !_backgroundEncoding)
+        jpeg = [_softwareContext JPEGRepresentationOfImage:image colorSpace:color
+            options:@{(__bridge NSString *)kCGImageDestinationLossyCompressionQuality:@(quality)}];
     CGColorSpaceRelease(color);
     return jpeg;
 }
@@ -534,7 +577,7 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sample
     fromConnection:(AVCaptureConnection *)connection {
     NSURLSessionWebSocketTask *socket = _socket;
-    if (!socket || !_fps || _sending) return;
+    if (!socket || !_fps || _sendsInFlight >= 2) return;
     CMTime pts = CMSampleBufferGetPresentationTimeStamp(sample);
     if (CMTIME_IS_VALID(_lastFrame) && CMTimeGetSeconds(CMTimeSubtract(pts,_lastFrame)) < .9/_fps) return;
     _lastFrame = pts;
@@ -543,14 +586,14 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         NSData *jpeg = [self encode:image quality:jpegQuality];
         if (jpeg.length > maxJPEGBytes) jpeg = [self encode:image quality:largeFrameQuality];
         if (!jpeg.length || jpeg.length > maxJPEGBytes) return;
-        _sending = YES;
+        _sendsInFlight++;
         __weak typeof(self) weakSelf = self;
         [socket sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithData:jpeg] completionHandler:^(NSError *error) {
             NativeCamera *self = weakSelf;
             if (!self) return;
             dispatch_async(self->_captureQueue, ^{
                 if (socket != self->_socket) return;
-                self->_sending = NO;
+                self->_sendsInFlight--;
                 if (error) {
                     [self failCapture:@"Connection ended. Start the camera again."];
                 } else if (!self->_announced) {
@@ -662,6 +705,11 @@ static BOOL changeTorch(AVCaptureDevice *device, BOOL on) {
         && (self.stream || self.opening) && !self.pip.pictureInPictureActive && !self.pipStarting) {
         [self stopWithMessage:@"Camera paused. Tap Start camera to reconnect."];
     }
+}
+
+- (void)renderStateChanged:(NSNotification *)notification {
+    BOOL background = ![notification.name isEqual:UIApplicationDidBecomeActiveNotification];
+    dispatch_async(_captureQueue, ^{ self->_backgroundEncoding = background; });
 }
 
 - (void)backgroundNotification:(NSNotification *)notification {

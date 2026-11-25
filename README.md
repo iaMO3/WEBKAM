@@ -5,7 +5,7 @@
 Use your iPhone or Android as a webcam over Wi-Fi or supported USB connections. WEBKAM is free and the desktop receiver runs natively in Rust. Windows 11 supports up to **1080p at 60 FPS**. The macOS preview release supports up to **1080p at 30 FPS** through the bundled VirtualCamera4Mac extension.
 
 <p align="center">
-  <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.0"><img src="docs/media/action-download.svg" alt="Downloads"></a>
+  <a href="https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.1"><img src="docs/media/action-download.svg" alt="Downloads"></a>
   <a href="https://iamo3.github.io/WEBKAM/#preview"><img src="docs/media/action-tour.svg" alt="App tour"></a>
   <a href="#install-and-pair"><img src="docs/media/action-pair.svg" alt="Quick start"></a>
   <a href="#build-from-source"><img src="docs/media/action-source.svg" alt="Build from source"></a>
@@ -18,13 +18,15 @@ Use your iPhone or Android as a webcam over Wi-Fi or supported USB connections. 
 
 ## Inside Camera Studio
 
+**New in v1.0.1** · In **Video settings**, click the lightning bolt beside **Resolution**. **Flash** turns on the rear torch on supported phones. With the front camera selected, **Screen light** turns the phone display white to light your face. You can switch either light off from your phone or computer.
+
 <table>
   <tr><th align="left">Windows receiver</th><th align="left">iPhone companion</th></tr>
   <tr>
     <td width="72%" align="center"><a href="docs/media/desktop.webp"><img src="docs/media/desktop.webp" width="690" alt="Camera Studio in dark mode with its standby landscape, pairing code and video controls"></a></td>
     <td width="28%" align="center"><a href="docs/media/phone.webp"><img src="docs/media/phone.webp" width="184" alt="Mobile viewfinder with a sample camera feed, lens picker and flash control"></a></td>
   </tr>
-  <tr><td>Use the sidebar to pair. In narrow windows, switch between Connection and Video settings below the preview.</td><td>Choose a lens, control the flash on supported cameras, and start or stop the stream.</td></tr>
+  <tr><td>Use the sidebar to pair. In narrow windows, switch between Connection and Video settings below the preview.</td><td>Choose a lens or switch the light on while streaming. Use Flash for a supported rear camera or Screen light for the front camera.</td></tr>
 </table>
 
 The desktop receiver, mobile companions and iPhone Home Screen app share light and dark themes. The screenshots use example pairing details and a sample camera feed. Select a screenshot for the full image, or [explore the pairing screen and framing demo](https://iamo3.github.io/WEBKAM/#panel-pairing).
@@ -48,12 +50,12 @@ If another phone session is paired, click **Disconnect** in the Windows app to g
 
 ### Install on a Mac
 
-1. Download the [universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.0/WEBKAM-1.0.0-macOS-universal.dmg) for macOS 13 Ventura or later. It covers Intel and Apple silicon MacBooks and desktop Macs.
+1. Download the [universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.1/WEBKAM-1.0.1-macOS-universal.dmg) for macOS 13 Ventura or later. It covers Intel and Apple silicon MacBooks and desktop Macs.
 2. Open the DMG and drag **WEBKAM** to **Applications**. Open the included **VirtualCamera4Mac** disk image and copy that app to **Applications** too. Open VirtualCamera4Mac, select **Install / Activate**, and approve the camera extension in System Settings.
 3. Open WEBKAM, connect your phone to the same Wi-Fi network and scan the QR code. Open the link in Safari on iPhone to download the profile. Follow the phone setup page, then enter the eight-digit pairing code and tap **Start camera**.
 4. Select **VirtualCamera4Mac** as the camera in your calling app. Keep the WEBKAM receiver open during the call.
 
-The macOS receiver is an early build and uses an ad-hoc signature. See the [macOS release notes](https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.0) for installation details and checksums.
+The macOS receiver is an early build and uses an ad-hoc signature. See the [macOS release notes](https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.1) for installation details and checksums.
 
 ## Downloads
 
@@ -61,18 +63,18 @@ All WEBKAM downloads are free. For browser capture, scan the desktop QR code in 
 
 | Platform | Download | Requirements |
 | --- | --- | --- |
-| Windows | [WEBKAM 1.0.0 Setup](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.0/WEBKAM-1.0.0-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
-| macOS | [WEBKAM 1.0.0 Universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.0/WEBKAM-1.0.0-macOS-universal.dmg) | macOS 13 or later. Intel and Apple silicon. Preview release with bundled camera extension. |
-| Android | [WEBKAM 1.0.0 APK](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.0/WEBKAM-1.0.0-Android.apk) | Android 8 or later. Signed APK. |
-| iPhone | [WEBKAM 1.0.0 IPA](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.0/WEBKAM-1.0.0-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
+| Windows | [WEBKAM 1.0.1 Setup](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.1/WEBKAM-1.0.1-Setup.exe) | Windows 11 x64. Guided, unsigned installer with optional USB components. |
+| macOS | [WEBKAM 1.0.1 Universal DMG](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.1/WEBKAM-1.0.1-macOS-universal.dmg) | macOS 13 or later. Intel and Apple silicon. Preview release with bundled camera extension. |
+| Android | [WEBKAM 1.0.1 APK](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.1/WEBKAM-1.0.1-Android.apk) | Android 8 or later. Signed APK. |
+| iPhone | [WEBKAM 1.0.1 IPA](https://github.com/iaMO3/WEBKAM/releases/download/v1.0.1/WEBKAM-1.0.1-iPhone-unsigned.ipa) | iOS 18 or later. Personal signing required. Physical iPhone verification of the native floating preview is pending. |
 
-[Release notes and SHA-256 checksums](https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.0)
+[Release notes and SHA-256 checksums](https://github.com/iaMO3/WEBKAM/releases/tag/v1.0.1)
 
 ## Video quality and orientation
 
 | Control | Where | What it does |
 | --- | --- | --- |
-| Flash | Phone | Toggle the torch when the active camera exposes one. |
+| Flash / Screen light | Desktop or phone | Use the lightning bolt next to Resolution to toggle a supported rear torch. With a front camera, it switches the phone screen to white for fill light. |
 | Camera lens | Phone | Select a front or rear camera, or a specific lens exposed by the phone after camera permission. |
 | Resolution and frame rate | Windows | Choose 720p or 1080p at 30 or 60 FPS. The default is 1080p at 30 FPS. Actual FPS depends on the phone, connection, and calling app. |
 | Orientation | Windows | **Auto** follows the phone. **Landscape** or **Portrait** locks the output shape. |
@@ -102,8 +104,8 @@ The Home Screen app opens at the saved PC address. If that address changes, scan
 - **Android**. Update the APK and the Windows app. Start the camera, then tap **Floating preview** to open Android’s Picture-in-picture window. You can switch apps with the preview visible. Closing the preview or locking the device pauses the camera.
 - **iPhone**. Use the hybrid **WEBKAM PiP** companion on iOS 18 or later. Enter the PC address and pair in the companion, then tap **Start camera → Floating preview**. The companion uses the familiar WEBKAM camera interface with native AVFoundation capture and AVKit Picture-in-Picture on devices that report camera multitasking support. If iOS interrupts capture, return to the app. Camera multitasking in the Safari and profile-installed versions depends on WebKit.
 
-- **Android 8 or later**. Open **WEBKAM-1.0.0-Android.apk** on the phone and approve installation for the app that opened the file. The APK is signed with a local release key.
-- **iPhone, iOS 18 or later**. **WEBKAM-1.0.0-iPhone-unsigned.ipa** contains the arm64 companion and requires personal signing. In AltStore Classic, open **My Apps**, tap **+**, and choose the IPA. On Windows, keep WEBKAM open and click **Disconnect** if the browser version is still paired, then enter the new pairing code in **WEBKAM**.
+- **Android 8 or later**. Open **WEBKAM-1.0.1-Android.apk** on the phone and approve installation for the app that opened the file. The APK is signed with a local release key.
+- **iPhone, iOS 18 or later**. **WEBKAM-1.0.1-iPhone-unsigned.ipa** contains the arm64 companion and requires personal signing. In AltStore Classic, open **My Apps**, tap **+**, and choose the IPA. On Windows, keep WEBKAM open and click **Disconnect** if the browser version is still paired, then enter the new pairing code in **WEBKAM**.
 - Open WEBKAM on the phone and enter the PC address shown under the Windows QR code. On a first Wi-Fi or USB tether connection, tap **First-time certificate setup**, complete the certificate instructions in **Safari on iPhone** or **Chrome on Android**, then return to the app and tap **Open camera**. Enter the PC pairing code and allow camera access. On Android ADB, click **Connect Android USB** on Windows and choose **Use Android USB (ADB)** in the phone app.
 - Use **Connection** in the phone companion to change PCs. Scanning the desktop QR code with the phone's system camera still opens the browser workflow.
 

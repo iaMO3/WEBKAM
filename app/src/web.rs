@@ -117,7 +117,24 @@ struct Job {
     data: Bytes,
 }
 
+#[derive(Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum LightKind {
+    #[default]
+    None,
+    Torch,
+    Screen,
+}
+
+#[derive(Clone, Copy, Default, Deserialize, Serialize)]
+pub struct LightState {
+    pub light: LightKind,
+    pub on: bool,
+}
+
 struct Session {
+    light: LightState,
+    light_request: Option<bool>,
     code: String,
     phone: Option<Uuid>,
     stream: Option<Uuid>,
@@ -130,6 +147,7 @@ struct Session {
 
 #[derive(Serialize)]
 pub struct Status {
+    pub light: LightState,
     pub code: Option<String>,
     pub paired: bool,
     pub live: bool,
@@ -147,6 +165,8 @@ impl App {
         let (changed, _) = watch::channel(0);
         let app = Self(Arc::new(Inner {
             state: Mutex::new(Session {
+                light: LightState::default(),
+                light_request: None,
                 code: pairing_code(),
                 phone: None,
                 stream: None,
@@ -237,10 +257,20 @@ impl App {
         active.phone = None;
         active.stream = None;
         active.socket = None;
+        active.light = LightState::default();
+        active.light_request = None;
         active.code = pairing_code();
         active.attempts.clear();
         self.clear(&mut active);
         self.notify();
+    }
+
+    pub fn toggle_light(&self) {
+        let mut active = self.0.state.lock().unwrap();
+        if active.socket.is_some() && active.light.light != LightKind::None {
+            active.light_request = Some(!active.light.on);
+            self.notify();
+        }
     }
 
     pub fn settings(&self, settings: Settings) {
@@ -255,6 +285,7 @@ impl App {
     pub fn snapshot(&self) -> (Status, Option<Arc<Frame>>) {
         let active = self.0.state.lock().unwrap();
         let status = Status {
+            light: active.light,
             code: active.phone.is_none().then(|| active.code.clone()),
             paired: active.phone.is_some(),
             live: active.latest.is_some(),
@@ -335,7 +366,10 @@ struct Phone {
 }
 
 pub async fn landscape() -> Response {
-    asset("image/png", include_bytes!("../../assets/studio-landscape.png").as_slice())
+    asset(
+        "image/png",
+        include_bytes!("../../assets/studio-landscape.png").as_slice(),
+    )
 }
 
 pub fn phone_router(app: App, origin: &str) -> Router {
@@ -350,6 +384,15 @@ pub fn phone_router(app: App, origin: &str) -> Router {
         .route(
             "/phone.js",
             get(|| async { asset("text/javascript; charset=utf-8", PHONE_JS) }),
+        )
+        .route(
+            "/frame-encoder.js",
+            get(|| async {
+                asset(
+                    "text/javascript; charset=utf-8",
+                    include_str!("../../public/frame-encoder.js"),
+                )
+            }),
         )
         .route("/style.css", get(css))
         .route(
@@ -494,6 +537,8 @@ async fn start(State(phone): State<Phone>, headers: HeaderMap) -> Response {
     let id = Uuid::new_v4();
     active.stream = Some(id);
     active.socket = None;
+    active.light = LightState::default();
+    active.light_request = None;
     phone.app.clear(&mut active);
     phone.app.notify();
     Json(serde_json::json!({ "stream": id.to_string() })).into_response()
@@ -510,6 +555,8 @@ async fn stop(State(phone): State<Phone>, headers: HeaderMap) -> StatusCode {
     }
     active.stream = None;
     active.socket = None;
+    active.light = LightState::default();
+    active.light_request = None;
     phone.app.clear(&mut active);
     phone.app.notify();
     StatusCode::NO_CONTENT
@@ -551,6 +598,8 @@ async fn receive(mut socket: WebSocket, app: App, stream: Uuid, user: Option<Uui
             return;
         }
         active.socket = Some(id);
+        active.light = LightState::default();
+        active.light_request = None;
         active.settings
     };
     app.notify();
@@ -562,16 +611,20 @@ async fn receive(mut socket: WebSocket, app: App, stream: Uuid, user: Option<Uui
             result = changed.changed() => {
                 if result.is_err() { break; }
                 let current = {
-                    let active = app.0.state.lock().unwrap();
+                    let mut active = app.0.state.lock().unwrap();
                     let current = active.stream == Some(stream) && active.socket == Some(id);
-                    current.then_some(active.settings)
+                    current.then(|| (active.settings, active.light_request.take()))
                 };
-                let Some(current) = current else {
+                let Some((current, light)) = current else {
                     let _ = socket.send(Message::Close(Some(axum::extract::ws::CloseFrame {
                         code: 4001, reason: "Pairing ended".into(),
                     }))).await;
                     break;
                 };
+                if let Some(on) = light {
+                    let command = serde_json::json!({ "setLight": on }).to_string();
+                    if socket.send(Message::Text(command.into())).await.is_err() { break; }
+                }
                 if current != settings {
                     settings = current;
                     if send_mode(&mut socket, settings).await.is_err() { break; }
@@ -584,6 +637,14 @@ async fn receive(mut socket: WebSocket, app: App, stream: Uuid, user: Option<Uui
                             app.0.incoming.send_replace(Some(Job { stream, socket: id, settings, data }));
                         }
                     }
+                    Some(Ok(Message::Text(text))) if text.len() <= 128 => {
+                        if let Ok(light) = serde_json::from_str::<LightState>(&text) {
+                            let mut active = app.0.state.lock().unwrap();
+                            if active.socket == Some(id) {
+                                active.light = light;
+                            }
+                        }
+                    }
                     Some(Ok(Message::Close(_))) | Some(Err(_)) | None => break,
                     _ => {},
                 }
@@ -593,6 +654,8 @@ async fn receive(mut socket: WebSocket, app: App, stream: Uuid, user: Option<Uui
     let mut active = app.0.state.lock().unwrap();
     if active.socket == Some(id) {
         active.socket = None;
+        active.light = LightState::default();
+        active.light_request = None;
         app.clear(&mut active);
     }
 }

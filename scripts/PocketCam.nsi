@@ -1,5 +1,5 @@
 Unicode true
-Name "WEBKAM 1.0.0"
+Name "WEBKAM 1.0.1"
 OutFile "${OUTPUT}"
 InstallDir "$PROGRAMFILES64\PocketCam"
 RequestExecutionLevel admin
@@ -136,7 +136,7 @@ Section "WEBKAM"
     ${EndIf}
     WriteUninstaller "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayName" "WEBKAM"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "1.0.0"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayVersion" "1.0.1"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "DisplayIcon" "$INSTDIR\WEBKAM.ico"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "UninstallString" '"$INSTDIR\Uninstall.exe"'
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PocketCam" "NoModify" 1
